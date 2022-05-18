@@ -1,0 +1,33 @@
+{
+  "name": "@abridged/collabland-contracts-governance",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
+    "coverage": "hardhat coverage",
+    "deploy:hardhat": "hardhat deploy --network hardhat",
+    "deploy:optimism-gnosis": "hardhat deploy --network optimism-gnosis",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@abridged/collabland-contracts-common": "0.0.1",
+    "@eth-optimism/contracts": "0.5.24"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "2.0.6",
+    "@nomiclabs/hardhat-etherscan": "3.0.3",
+    "@nomiclabs/hardhat-waffle": "2.0.3",
+    "@typechain/ethers-v5": "7.2.0",
+    "@typechain/hardhat": "2.3.1",
+    "chai": "4.3.6",
+    "dotenv": "16.0.1",
+    "ethereum-waffle": "3.4.4",
+    "ethers": "5.6.6",
+    "hardhat": "2.9.5",
+    "hardhat-deploy": "0.11.5",
+    "hardhat-gas-reporter": "1.0.8",
+    "solidity-coverage": "0.7.21",
+    "typechain": "5.2.0"
+  }
+}

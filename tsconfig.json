@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": false,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "declaration": true,
+    "paths": {
+      "@abridged/collabland-contracts-common": ["./packages/common/**/*.ts"]
+    }
+  }
+}

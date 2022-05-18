@@ -1,0 +1,34 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "preclean": "lerna run clean",
+    "clean": "lerna clean",
+    "compile": "lerna run compile",
+    "coverage": "lerna run coverage",
+    "link": "lerna link",
+    "test": "lerna run test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "4.3.1",
+    "@types/mocha": "9.1.1",
+    "@types/node": "12.20.52",
+    "@typescript-eslint/eslint-plugin": "4.33.0",
+    "@typescript-eslint/parser": "4.33.0",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-config-standard": "16.0.3",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "3.4.1",
+    "eslint-plugin-promise": "5.2.0",
+    "lerna": "4.0.0",
+    "prettier": "2.6.2",
+    "prettier-plugin-solidity": "1.0.0-beta.19",
+    "solhint": "3.3.7",
+    "ts-node": "10.7.0",
+    "typescript": "4.6.4"
+  }
+}

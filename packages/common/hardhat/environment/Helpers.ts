@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ContractTransaction, ContractReceipt, Contract } from 'ethers';
-import { getEnvKey } from '../utils';
+import { getEnvKey } from '../../utils';
 
 export class Helpers {
   private signers: SignerWithAddress[];

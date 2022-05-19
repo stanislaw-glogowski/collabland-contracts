@@ -1,6 +1,6 @@
 import 'hardhat/types/config';
 import 'hardhat/types/runtime';
-import type { Helpers } from './Helpers';
+import type { Helpers } from './environment';
 
 declare module 'hardhat/types/runtime' {
   export interface HardhatRuntimeEnvironment {

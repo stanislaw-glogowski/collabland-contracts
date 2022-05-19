@@ -1,6 +1,6 @@
 import { extendConfig } from 'hardhat/config';
 import { join } from 'path';
-import { getEnvAsBool } from '../utils';
+import { getEnvAsBool } from '../../utils';
 
 extendConfig((config) => {
   const { root } = config.paths;

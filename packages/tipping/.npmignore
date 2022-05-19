@@ -1,3 +1,5 @@
 *
-!./deployments
-!./src
+!/deployments
+!/dist
+!/src
+!/LICENSE

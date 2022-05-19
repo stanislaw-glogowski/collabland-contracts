@@ -1,14 +1,31 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { ContractTransaction, ContractReceipt, Contract } from 'ethers';
-import { getEnvKey } from '../../utils';
+import {
+  ContractTransaction,
+  ContractReceipt,
+  Contract,
+  constants,
+} from 'ethers';
+import { bindObjectMethods } from '../shared';
 
 export class Helpers {
   private signers: SignerWithAddress[];
   private snapshotIds: string[] = [];
 
   constructor(private readonly hre: HardhatRuntimeEnvironment) {
-    //
+    bindObjectMethods(this);
+  }
+
+  getCrossDomainMessenger(): string {
+    const {
+      network: { config },
+      envs: { getEnvAsAddress },
+    } = this.hre;
+
+    return getEnvAsAddress(
+      'crossDomainMessenger',
+      (config as any).crossDomainMessenger || constants.AddressZero,
+    );
   }
 
   async getCurrentBlockTimestamp(): Promise<number> {
@@ -112,8 +129,9 @@ export class Helpers {
     }
 
     if (!this.signers.length) {
-      const { name } = this.hre.network;
-      const envKey = getEnvKey(`${name}.PRIVATE_KEY`);
+      const { buildEnvKey } = this.hre.envs;
+
+      const envKey = buildEnvKey('PRIVATE_KEY');
 
       throw new Error(`Undefined '${envKey}' environment variable`);
     }

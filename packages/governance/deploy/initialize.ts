@@ -1,15 +1,11 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
-import {
-  getEnvAsAddressArray,
-  getEnvAsAmount,
-  getEnvAsNumber,
-} from '@abridged/collabland-contracts-common/utils';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {
     deployments: { execute, read, log },
     helpers: { getAccounts },
+    envs: { getEnvAsAddressArray, getEnvAsNumber, getEnvAsAmount },
   } = hre;
 
   if (await read('GovernanceToken', 'initialized')) {
@@ -22,11 +18,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
     const SNAPSHOT_WINDOW_LENGTH = getEnvAsNumber(
       'GovernanceToken.SNAPSHOT_WINDOW_LENGTH',
-      24 * 60 * 60, // 1 day
+      24 * 60 * 60, // 86400 sec = 1 day
     );
     const VOTING_PERIOD = getEnvAsNumber(
       'GovernanceToken.VOTING_PERIOD',
-      24 * 60 * 60, // 1 day
+      24 * 60 * 60, // 86400 sec = 1 day
     );
     const INITIAL_SUPPLY = getEnvAsAmount(
       'GovernanceToken.INITIAL_SUPPLY',

@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "@abridged/collabland-contracts-common/src/access/Controlled.sol";
 import "@abridged/collabland-contracts-common/src/utils/Initializable.sol";
-import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 import "./WalletManager.sol";
 
 contract Gateway is Controlled, Initializable {

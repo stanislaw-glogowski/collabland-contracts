@@ -1,6 +1,8 @@
 import { extendConfig } from 'hardhat/config';
 import { join } from 'path';
-import { getEnvAsBool } from '../../utils';
+import { Envs } from '../shared';
+
+const { getEnvAsBool } = Envs.getInstance();
 
 extendConfig((config) => {
   const { root } = config.paths;

@@ -136,7 +136,7 @@ export class Envs {
     return url ? url.href : defaultValue;
   }
 
-  private getEnvValue(key: string): string {
+  getEnvValue(key: string): string {
     return Envs.data[this.buildEnvKey(key)];
   }
 }

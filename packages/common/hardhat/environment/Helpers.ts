@@ -1,5 +1,6 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { DeployOptions, DeployResult } from 'hardhat-deploy/types';
 import {
   ContractTransaction,
   ContractReceipt,

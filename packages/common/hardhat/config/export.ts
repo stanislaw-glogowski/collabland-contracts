@@ -4,12 +4,7 @@ import { Envs } from '../shared';
 
 const envs = Envs.getInstance();
 
-const { getEnvAsHex32, getEnvAsBool } = envs;
-
-const HARDHAT_DEFAULT_PRIVATE_KEY = getEnvAsHex32(
-  'HARDHAT_DEFAULT_PRIVATE_KEY',
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-);
+const { getEnvAsBool } = envs;
 
 const SAVE_LOCAL_DEPLOYMENTS = getEnvAsBool('SAVE_LOCAL_DEPLOYMENTS');
 
@@ -48,11 +43,7 @@ export const DEFAULT_HARDHAT_CONFIG: HardhatUserConfig = {
             getEnvAsAddress,
           } = networkEnvs;
 
-          let account = getEnvAsHex32('PRIVATE_KEY');
-
-          if (!account && isLocal) {
-            account = HARDHAT_DEFAULT_PRIVATE_KEY;
-          }
+          const privateKey = getEnvAsHex32('PRIVATE_KEY');
 
           return {
             ...result,
@@ -63,7 +54,7 @@ export const DEFAULT_HARDHAT_CONFIG: HardhatUserConfig = {
                 'CROSS_DOMAIN_MESSENGER',
                 crossDomainMessenger,
               ),
-              accounts: account ? [account] : [],
+              accounts: privateKey ? [privateKey] : [],
               saveDeployments: !isLocal || SAVE_LOCAL_DEPLOYMENTS,
             },
           };
@@ -71,7 +62,5 @@ export const DEFAULT_HARDHAT_CONFIG: HardhatUserConfig = {
         {},
       ),
   },
-  envs: {
-    //
-  },
+  envs: {},
 };

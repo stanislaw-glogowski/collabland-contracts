@@ -7,11 +7,11 @@
     "compile": "hardhat compile",
     "coverage": "hardhat coverage",
     "deploy": "hardhat deploy",
+    "faucet": "hardhat faucet",
     "test": "hardhat test"
   },
   "dependencies": {
-    "@abridged/collabland-contracts-common": "0.0.1",
-    "@eth-optimism/contracts": "0.5.24"
+    "@abridged/collabland-contracts-common": "0.0.1"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.6",

@@ -12,13 +12,19 @@
 
 * [Cross domain messaging](./examples/cross-domain-messaging) 
 
-## Local environment
+## Local development environment
 
-> TODO
+### [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
 
-### Useful links 
+### Usage
 
-* [Running local Optimistic development](https://community.optimism.io/docs/developers/build/dev-node/)
+```bash
+$ ./local.sh bootstrap  # pulls latest version of optimism
+$ ./local.sh start      # starts local environment (alias to docker-compose up -d --force-recreate)
+$ ./local.sh stop       # stops local environment (alias to docker-compose down --rmi local)
+$ ./local.sh ps|logs    # runs docker-compose ps|logs $@ command
+$ ./local.sh #          # runs bootstrap then start 
+```
 
 ## License
 

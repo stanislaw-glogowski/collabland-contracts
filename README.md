@@ -16,9 +16,7 @@
 
 ### Local environment
 
-#### [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
-
-#### Usage
+[Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
 
 ```bash
 $ ./local.sh bootstrap  # pulls latest version of optimism
@@ -26,6 +24,17 @@ $ ./local.sh start      # starts local environment (alias to docker-compose up -
 $ ./local.sh stop       # stops local environment (alias to docker-compose down --rmi local)
 $ ./local.sh ps|logs    # runs docker-compose ps|logs $@ command
 $ ./local.sh            # runs bootstrap then start 
+```
+
+### Hardhat
+
+```bash
+$ npm i
+$ npm run bootstrap   # bootstraps lerna project
+$ npm run link        # links all packages dependencies
+$ npm run compile     # compiles all contracts in all packages
+$ npm run coverage    # runs coverage tests in all packages
+$ npm run test        # runs unit tests in all packages
 ```
 
 ## License

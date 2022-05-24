@@ -2,7 +2,7 @@
 
 [![License MIT][license-image]][license-url]
 
-## [Prerequisites](https://github.com/abridged/collabland-contracts#local-development-environment)
+## [Prerequisites](https://github.com/abridged/collabland-contracts#development)
 
 ## Usage
 

@@ -20,6 +20,8 @@ contract CrossDomainMessengerMock is ICrossDomainMessenger {
     uint256 gasLimit
   );
 
+  event TargetCalled(address target, bytes data, bool success, bytes response);
+
   // external functions (views)
 
   function xDomainMessageSender() external view returns (address) {
@@ -33,10 +35,16 @@ contract CrossDomainMessengerMock is ICrossDomainMessenger {
   }
 
   function sendMessage(
-    address _target,
-    bytes calldata _message,
-    uint32 _gasLimit
+    address target,
+    bytes calldata message,
+    uint32 gasLimit
   ) external {
-    emit MessageSent(msg.sender, _target, _message, _gasLimit);
+    emit MessageSent(msg.sender, target, message, gasLimit);
+  }
+
+  function callTarget(address target, bytes calldata data) external {
+    (bool success, bytes memory response) = target.call(data);
+
+    emit TargetCalled(target, data, success, response);
   }
 }

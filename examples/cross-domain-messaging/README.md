@@ -6,7 +6,7 @@
 
 ## Usage
 
-Deploy contracts to both local and local-optimism networks:
+Deploy contracts to both `local` and `local-optimism` networks:
 ```bash
 $ npm run deploy:local
 $ npm run deploy:local-optimism

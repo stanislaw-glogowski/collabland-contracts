@@ -49,7 +49,7 @@ runScript(async (hre) => {
         }, {});
 
         console.log();
-        console.log(`${kleur.blue('→')} ${kleur.dim(name)} emitted`, data);
+        console.log(`${kleur.blue('→')} ${kleur.blue(name)} emitted`, data);
       }
     }
 

@@ -23,7 +23,7 @@ $ ./local.sh bootstrap  # pulls latest version of optimism
 $ ./local.sh start      # starts local environment (alias to docker-compose up -d --force-recreate)
 $ ./local.sh stop       # stops local environment (alias to docker-compose down --rmi local)
 $ ./local.sh ps|logs    # runs docker-compose ps|logs $@ command
-$ ./local.sh #          # runs bootstrap then start 
+$ ./local.sh            # runs bootstrap then start 
 ```
 
 ## License

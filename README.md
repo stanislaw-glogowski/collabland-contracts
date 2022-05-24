@@ -12,11 +12,13 @@
 
 * [Cross domain messaging](./examples/cross-domain-messaging) 
 
-## Local development environment
+## Development
 
-### [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
+### Local environment
 
-### Usage
+#### [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
+
+#### Usage
 
 ```bash
 $ ./local.sh bootstrap  # pulls latest version of optimism

@@ -1,3 +1,4 @@
-export * from './Envs';
-export * from './bindObjectMethods';
+export * from './classes';
 export * from './constants';
+export * from './interfaces';
+export * from './utils';

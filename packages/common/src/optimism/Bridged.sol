@@ -4,13 +4,17 @@ pragma solidity ^0.8.0;
 
 import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 
-abstract contract CrossDomainMessengerWrapper {
+abstract contract Bridged {
   address private _crossDomainMessenger;
+
+  // errors
+
+  error CrossDomainMessengerIsTheZeroAddress();
 
   // internal functions (views)
 
   function _xDomainMessageSender() internal view returns (address result) {
-    if (_crossDomainMessenger != address(0)) {
+    if (msg.sender == _crossDomainMessenger) {
       result = ICrossDomainMessenger(_crossDomainMessenger)
         .xDomainMessageSender();
     }
@@ -21,22 +25,22 @@ abstract contract CrossDomainMessengerWrapper {
   // internal functions
 
   function _setCrossDomainMessenger(address crossDomainMessenger) internal {
-    if (crossDomainMessenger != address(0)) {
-      _crossDomainMessenger = crossDomainMessenger;
-    }
+    _crossDomainMessenger = crossDomainMessenger;
   }
 
   function _sendMessage(
     address _target,
-    bytes calldata _message,
+    bytes memory _message,
     uint32 _gasLimit
   ) internal {
-    if (_crossDomainMessenger != address(0)) {
-      ICrossDomainMessenger(_crossDomainMessenger).sendMessage(
-        _target,
-        _message,
-        _gasLimit
-      );
+    if (_crossDomainMessenger == address(0)) {
+      revert CrossDomainMessengerIsTheZeroAddress();
     }
+
+    ICrossDomainMessenger(_crossDomainMessenger).sendMessage(
+      _target,
+      _message,
+      _gasLimit
+    );
   }
 }

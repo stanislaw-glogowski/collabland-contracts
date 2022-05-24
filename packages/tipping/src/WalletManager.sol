@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@abridged/collabland-contracts-common/src/utils/Initializable.sol";
+import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
 import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
 import "./GatewayContext.sol";
 

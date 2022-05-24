@@ -1,6 +1,7 @@
+import './dotenv';
 import './config';
 import './environment';
 import './tasks';
 import './typings';
 
-export * from './config';
+export * from './defaults';

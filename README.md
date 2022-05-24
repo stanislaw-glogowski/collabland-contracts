@@ -4,14 +4,21 @@
 
 ## Packages
 
-* [@abridged/collabland-contracts-governance](./packages/governance) - `Governance` token
+* [@abridged/collabland-governance-contracts](./packages/governance) - `Governance` token
 * [@abridged/collabland-contracts-tipping](./packages/tipping) - `Universal Tipping` token
-* [@abridged/collabland-contracts-common](./packages/common) - common contracts
+* [@abridged/collabland-common-contracts](./packages/common) - Common contracts
 
-## Useful links
+## Examples
+
+* [Cross domain messaging](./examples/cross-domain-messaging) 
+
+## Local environment
+
+> TODO
+
+### Useful links 
 
 * [Running local Optimistic development](https://community.optimism.io/docs/developers/build/dev-node/)
-* [Building Optimistic locally fails on Apple M1](https://github.com/ethereum-optimism/optimism/issues/2429)
 
 ## License
 

@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "@abridged/collabland-contracts-common/src/access/Controlled.sol";
-import "@abridged/collabland-contracts-common/src/tokens/ERC20.sol";
-import "@abridged/collabland-contracts-common/src/utils/Context.sol";
-import "@abridged/collabland-contracts-common/src/utils/Initializable.sol";
+import "@abridged/collabland-common-contracts/src/access/Controlled.sol";
+import "@abridged/collabland-common-contracts/src/tokens/ERC20.sol";
+import "@abridged/collabland-common-contracts/src/utils/Context.sol";
+import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
 import "./GatewayContext.sol";
 
 contract TippingToken is Controlled, ERC20, Initializable, GatewayContext {

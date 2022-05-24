@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-deploy';

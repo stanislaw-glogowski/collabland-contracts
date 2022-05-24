@@ -1,3 +1,3 @@
 import './environment';
 
-export * from './Helpers';
+export * from './classes/Helpers';

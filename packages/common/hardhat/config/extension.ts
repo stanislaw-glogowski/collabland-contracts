@@ -1,8 +1,6 @@
-import { extendConfig } from 'hardhat/config';
 import { join } from 'path';
+import { extendConfig } from 'hardhat/config';
 import { Envs } from '../shared';
-
-const { getEnvAsBool } = Envs.getInstance();
 
 extendConfig((config) => {
   const { root } = config.paths;
@@ -13,6 +11,8 @@ extendConfig((config) => {
     cache: join(root, '.hardhat/cache'),
     artifacts: join(root, '.hardhat/artifacts'),
   };
+
+  const { getEnvAsBool } = Envs.processEnvs;
 
   (config as any).gasReporter = {
     enabled: getEnvAsBool('REPORT_GAS'),

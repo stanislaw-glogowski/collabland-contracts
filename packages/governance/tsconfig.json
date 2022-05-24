@@ -1,5 +1,10 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./deploy/**/*.ts", "./test/**/*.ts", "./typechain/**/*.ts"],
+  "include": [
+    "./deploy/**/*.ts",
+    "../../examples/cross-domain-messaging/scripts/**/*.ts",
+    "./test/**/*.ts",
+    "./typechain/**/*.ts"
+  ],
   "files": ["./hardhat.config.ts"]
 }

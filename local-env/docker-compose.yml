@@ -1,0 +1,6 @@
+version: '3.4'
+
+services:
+  relayer:
+    deploy:
+      replicas: 1

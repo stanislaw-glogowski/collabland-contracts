@@ -5,8 +5,12 @@
 ## Installation
 
 ```bash
-$ npm i @abridged/collabland-contracts-tipping -S
+$ npm i @abridged/collabland-tipping-contracts -S
 ```
+
+## Usage
+
+> TODO
 
 ## License
 

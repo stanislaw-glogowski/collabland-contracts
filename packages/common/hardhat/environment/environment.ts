@@ -1,17 +1,22 @@
 import { extendEnvironment } from 'hardhat/config';
 import { Envs } from '../shared';
-import { Helpers } from './Helpers';
+import { Helpers } from './classes';
 
 extendEnvironment((hre) => {
   const {
-    network: { name },
+    network: {
+      name: networkName,
+      config: { optimism },
+    },
   } = hre;
+  const { processEnvs } = Envs;
 
   hre.helpers = new Helpers(hre);
 
-  const globalEnvs = Envs.getInstance(hre.config.envs || {});
-  const envs = globalEnvs.cloneWith(name);
+  hre.processEnvs = processEnvs;
+  hre.processNetworkEnvs = processEnvs.useNamespace(networkName);
 
-  hre.envs = envs;
-  hre.globalEnvs = globalEnvs;
+  hre.optimism = optimism || {
+    contracts: {},
+  };
 });

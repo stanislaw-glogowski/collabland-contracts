@@ -5,14 +5,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {
     deployments: { execute, read, log },
     helpers: { getAccounts },
-    envs: { getEnvAsAddressArray, getEnvAsNumber, getEnvAsAmount },
+    processNetworkEnvs: {
+      getEnvAsAddressArray,
+      getEnvAsNumber,
+      getEnvAsAmount,
+    },
   } = hre;
+
+  const [from] = await getAccounts();
 
   if (await read('GovernanceToken', 'initialized')) {
     log('GovernanceToken already initialized');
   } else {
-    const [from] = await getAccounts();
-
     const CONTROLLERS = getEnvAsAddressArray(
       'GovernanceToken.CONTROLLERS', //
     );

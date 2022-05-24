@@ -1,13 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { DeployOptions, DeployResult } from 'hardhat-deploy/types';
-import {
-  ContractTransaction,
-  ContractReceipt,
-  Contract,
-  constants,
-} from 'ethers';
-import { bindObjectMethods } from '../shared';
+import { ContractTransaction, ContractReceipt, Contract } from 'ethers';
+import { bindObjectMethods, ProcessEnvNames } from '../../shared';
 
 export class Helpers {
   private signers: SignerWithAddress[];
@@ -17,16 +11,35 @@ export class Helpers {
     bindObjectMethods(this);
   }
 
-  getCrossDomainMessenger(): string {
+  async getBridgedContract<T extends Contract>(namePrefix: string): Promise<T> {
+    let result: T = null;
+
     const {
-      network: { config },
-      envs: { getEnvAsAddress },
+      deployments: { get },
+      optimism: {
+        contracts: { l1, l2 },
+      },
+      ethers: { getContractFactory },
     } = this.hre;
 
-    return getEnvAsAddress(
-      'crossDomainMessenger',
-      (config as any).crossDomainMessenger || constants.AddressZero,
-    );
+    if (l1 || l2) {
+      const name = `${namePrefix}L${l1 ? 1 : 2}`;
+
+      try {
+        const Factory = await getContractFactory(name);
+        const { address } = await get(name);
+
+        result = (await Factory.attach(address)) as any;
+      } catch (err) {
+        //
+      }
+    }
+
+    if (!result) {
+      throw new Error(`Bridged contract ${namePrefix}(L1,L2) not found`);
+    }
+
+    return result;
   }
 
   async getCurrentBlockTimestamp(): Promise<number> {
@@ -130,9 +143,9 @@ export class Helpers {
     }
 
     if (!this.signers.length) {
-      const { buildEnvKey } = this.hre.envs;
+      const { buildEnvKey } = this.hre.processNetworkEnvs;
 
-      const envKey = buildEnvKey('PRIVATE_KEY');
+      const envKey = buildEnvKey(ProcessEnvNames.PrivateKey);
 
       throw new Error(`Undefined '${envKey}' environment variable`);
     }

@@ -1,22 +1,23 @@
 import 'hardhat/types/config';
 import 'hardhat/types/runtime';
 import type { Helpers } from './environment';
-import type { Envs } from './shared';
+import type { Envs, Optimism } from './shared';
 
 declare module 'hardhat/types/config' {
-  export interface HardhatConfig {
-    envs?: Record<string, string>;
+  export interface HardhatNetworkConfig {
+    optimism?: Optimism;
   }
 
-  export interface HardhatUserConfig {
-    envs?: Record<string, string>;
+  export interface HttpNetworkConfig {
+    optimism?: Optimism;
   }
 }
 
 declare module 'hardhat/types/runtime' {
   export interface HardhatRuntimeEnvironment {
     helpers: Helpers;
-    envs: Envs;
-    globalEnvs: Envs;
+    processEnvs: Envs;
+    processNetworkEnvs: Envs;
+    optimism: Optimism;
   }
 }

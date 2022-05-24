@@ -5,8 +5,12 @@
 ## Installation
 
 ```bash
-$ npm i @abridged/collabland-contracts-governance -S
+$ npm i @abridged/collabland-governance-contracts -S
 ```
+
+## Usage
+
+> TODO
 
 ## License
 

@@ -1,50 +1,34 @@
 import { URL } from 'url';
 import { utils } from 'ethers';
-import { bindObjectMethods } from './bindObjectMethods';
+import { bindObjectMethods } from '../utils';
 
 export class Envs {
-  static getInstance(data?: Record<string, string>): Envs {
-    if (!this.instance) {
-      this.instance = new Envs([]);
-    }
-
-    if (data) {
-      this.data = {
-        ...this.data,
-        ...data,
-      };
-    }
-
-    return this.instance;
-  }
-
-  protected static data: Record<string, string> = {
+  static processEnvs = new Envs({
     ...process.env,
-  };
+  });
 
-  protected static instance: Envs;
-
-  protected constructor(private readonly prefixes: string[]) {
+  constructor(
+    private readonly data: Record<string, string>,
+    private readonly namespace: string = null,
+  ) {
     bindObjectMethods(this);
   }
 
-  cloneWith(namespace: string): Envs {
-    return new Envs([namespace, ...this.prefixes]);
+  useNamespace(namespace: string): Envs {
+    return new Envs(this.data, namespace);
   }
 
   buildEnvKey(name: string): string {
-    if (this.prefixes.length) {
-      name = `${this.prefixes.join('.')}.${name}`;
+    if (this.namespace) {
+      name = `${this.namespace}.${name}`;
     }
 
-    const key = name
+    return name
       .replace(/([a-z]+)([A-Z])/g, (found, part1, part2) => {
         return `${part1}-${part2}`;
       })
       .replace(/[- .]/gi, '_')
       .toUpperCase();
-
-    return key;
   }
 
   getEnvAsAddress(name: string, defaultValue: string = null): string {
@@ -137,6 +121,8 @@ export class Envs {
   }
 
   getEnvValue(key: string): string {
-    return Envs.data[this.buildEnvKey(key)];
+    key = this.buildEnvKey(key);
+
+    return this.data[key];
   }
 }

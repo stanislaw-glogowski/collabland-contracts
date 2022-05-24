@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@abridged/collabland-contracts-common/src/utils/Context.sol";
+import "@abridged/collabland-common-contracts/src/utils/Context.sol";
 
 abstract contract GatewayContext is Context {
   address private _gateway;

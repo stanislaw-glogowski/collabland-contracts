@@ -4,8 +4,8 @@
 
 ## Packages
 
-* [@abridged/collabland-governance-contracts](./packages/governance) - `Governance` token
-* [@abridged/collabland-contracts-tipping](./packages/tipping) - `Universal Tipping` token
+* [@abridged/collabland-governance-contracts](./packages/governance) - Governance token
+* [@abridged/collabland-contracts-tipping](./packages/tipping) - Universal Tipping token
 * [@abridged/collabland-common-contracts](./packages/common) - Common contracts
 
 ## Examples

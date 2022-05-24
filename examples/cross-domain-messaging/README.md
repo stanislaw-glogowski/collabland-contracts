@@ -2,9 +2,13 @@
 
 [![License MIT][license-image]][license-url]
 
-## [Prerequisites](https://github.com/abridged/collabland-contracts#development)
+## [Prerequisites](https://github.com/abridged/collabland-contracts#installation)
 
 ## Usage
+
+```bash
+$ cd ./examples/cross-domain-messaging
+```
 
 Deploy contracts to both `local` and `local-optimism` networks:
 ```bash

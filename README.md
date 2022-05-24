@@ -2,6 +2,17 @@
 
 [![License MIT][license-image]][license-url]
 
+## Installation
+
+```bash
+$ git clone https://github.com/abridged/collabland-contracts.git
+$ cd ./collabland-contracts
+$ ./local.sh
+$ npm i
+$ npm run bootstrap
+$ npm run link
+```
+
 ## Packages
 
 * [@abridged/collabland-governance-contracts](./packages/governance) - Governance token
@@ -12,9 +23,9 @@
 
 * [Cross domain messaging](./examples/cross-domain-messaging) 
 
-## Development
+## Local development
 
-### Local environment
+### Local environment options
 
 [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
 
@@ -26,10 +37,9 @@ $ ./local.sh ps|logs    # runs docker-compose ps|logs $@ command
 $ ./local.sh            # runs bootstrap then start 
 ```
 
-### Hardhat
+### NPM scripts 
 
 ```bash
-$ npm i
 $ npm run bootstrap   # bootstraps lerna project
 $ npm run link        # links all packages dependencies
 $ npm run compile     # compiles all contracts in all packages

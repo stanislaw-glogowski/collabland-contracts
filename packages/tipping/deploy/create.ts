@@ -3,11 +3,11 @@ import { DeployFunction } from 'hardhat-deploy/types';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {
-    getUnnamedAccounts,
     deployments: { deploy, log },
+    helpers: { getAccounts },
   } = hre;
 
-  const [from] = await getUnnamedAccounts();
+  const [from] = await getAccounts();
 
   log();
 
@@ -29,8 +29,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from,
     log: true,
   });
-
-  log();
 };
 
 func.tags = ['create'];

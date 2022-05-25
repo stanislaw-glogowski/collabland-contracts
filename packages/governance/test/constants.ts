@@ -1,9 +1,13 @@
 /* eslint-disable no-unused-vars */
 
+export enum ResponseStatuses {
+  Failed,
+  Success,
+}
+
 export enum ProposalStatuses {
   Unknown,
-  Completed,
-  Reverted,
+  Processed,
   Rejected,
 }
 

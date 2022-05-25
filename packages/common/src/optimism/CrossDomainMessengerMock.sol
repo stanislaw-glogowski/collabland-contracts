@@ -43,6 +43,7 @@ contract CrossDomainMessengerMock is ICrossDomainMessenger {
   }
 
   function callTarget(address target, bytes calldata data) external {
+    // solhint-disable-next-line avoid-low-level-calls
     (bool success, bytes memory response) = target.call(data);
 
     emit TargetCalled(target, data, success, response);

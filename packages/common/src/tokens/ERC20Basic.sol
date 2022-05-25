@@ -23,11 +23,11 @@ abstract contract ERC20Basic is ERC20 {
 
   // internal functions
 
-  function _mintHandler(address to, uint256 amount) internal override {
+  function _mintHandler(address to, uint256 amount) internal virtual override {
     _balances[to] += amount;
   }
 
-  function _burnHandler(address from, uint256 amount) internal override {
+  function _burnHandler(address from, uint256 amount) internal virtual override {
     _balances[from] -= amount;
   }
 
@@ -35,7 +35,7 @@ abstract contract ERC20Basic is ERC20 {
     address from,
     address to,
     uint256 amount
-  ) internal override {
+  ) internal virtual override {
     if (_balances[from] < amount) {
       revert AmountExceedsBalance();
     }

@@ -7,6 +7,7 @@
     "compile": "lerna run compile",
     "coverage": "lerna run coverage",
     "link": "lerna link",
+    "linter": "solhint \"packages/*/src/**/*.sol\"",
     "test": "lerna run test"
   },
   "dependencies": {},

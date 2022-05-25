@@ -60,13 +60,10 @@ abstract contract GatewayContext is Context {
 
 ### [Prerequisites](https://github.com/abridged/collabland-contracts#installation)
 
-```bash
-$ cd ./packages/common
-```
-
 ### NPM scripts
 
 ```bash
+$ cd ./packages/common
 $ npm run compile     # compiles all contracts
 $ npm run coverage    # runs coverage tests
 $ npm run test        # runs unit tests

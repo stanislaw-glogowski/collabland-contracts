@@ -12,6 +12,10 @@
     "predeploy:local-optimism": "npm run faucet:local-optimism",
     "deploy:local": "hardhat deploy --network local",
     "deploy:local-optimism": "hardhat deploy --network local-optimism",
+    "deploy:kovan": "hardhat deploy --network kovan",
+    "deploy:kovan-optimism": "hardhat deploy --network kovan-optimism",
+    "deploy:gnosis": "hardhat deploy --network gnosis",
+    "deploy:gnosis-optimism": "hardhat deploy --network gnosis-optimism",
     "test": "hardhat test"
   },
   "dependencies": {

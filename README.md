@@ -29,7 +29,6 @@ $ npm run link
 
 ### Local environment
 
-
 ```bash
 $ ./local.sh bootstrap  # pulls latest version of optimism
 $ ./local.sh start      # starts local environment (alias to docker-compose up -d --force-recreate)

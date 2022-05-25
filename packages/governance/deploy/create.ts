@@ -5,18 +5,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {
     deployments: { deploy, log },
     helpers: { getAccounts },
+    optimism: {
+      contracts: { l1, l2 },
+    },
   } = hre;
 
   const [from] = await getAccounts();
 
   log();
 
-  await deploy('GovernanceToken', {
-    from,
-    log: true,
-  });
+  // layer 1
+  if (l1) {
+    await deploy('GovernanceTokenL1', {
+      from,
+      log: true,
+    });
+  }
 
-  log();
+  // layer 2
+  if (l2) {
+    await deploy('GovernanceTokenL2', {
+      from,
+      log: true,
+    });
+  }
 };
 
 func.tags = ['create'];

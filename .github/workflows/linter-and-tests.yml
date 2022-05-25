@@ -1,6 +1,8 @@
 name: Linter and tests
 on:
   push:
+    branches-ignore:
+      - master
     paths:
       - '**.ts'
       - '**.sol'

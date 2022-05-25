@@ -4,7 +4,6 @@
 [![Coverage workflow](https://github.com/abridged/collabland-contracts/actions/workflows/coverage.yml/badge.svg)](https://github.com/abridged/collabland-contracts/actions/workflows/coverage.yml)
 [![Linter and tests workflow](https://github.com/abridged/collabland-contracts/actions/workflows/linter-and-tests.yml/badge.svg)](https://github.com/abridged/collabland-contracts/actions/workflows/linter-and-tests.yml)
 
-
 ## Installation
 
 ### [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
@@ -55,4 +54,4 @@ $ npm run test        # runs unit tests in all packages
 [MIT][license-url]
 
 [license-image]: https://img.shields.io/badge/License-MIT-yellow.svg
-[license-url]: https://github.com/abridged/collabland-contracts/blob/master/LICENSE[license-image]: https://img.shields.io/badge/License-MIT-yellow.svg
+[license-url]: https://github.com/abridged/collabland-contracts/blob/master/LICENSE

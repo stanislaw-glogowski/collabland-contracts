@@ -35,6 +35,12 @@ jobs:
         env:
           CI: false
 
+      - name: Run bootstrap
+        run: npm run bootstrap
+
+      - name: Run link
+        run: npm run link
+
       - name: Run compile
         run: npm run compile
 

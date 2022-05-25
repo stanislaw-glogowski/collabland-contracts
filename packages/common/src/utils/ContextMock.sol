@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./Context.sol";
 
-contract ContextTokenMock is Context {
+contract ContextMock is Context {
   // events
 
   event MsgSender(address msgSender);

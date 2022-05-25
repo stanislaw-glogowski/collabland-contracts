@@ -6,9 +6,12 @@ import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 
 abstract contract Bridged {
   address private _crossDomainMessenger;
+  uint256 private _outgoingMessageCounter;
+  mapping(uint256 => bool) private _incomingMessages;
 
   // errors
 
+  error IncomingMessagesAlreadyExists();
   error CrossDomainMessengerIsTheZeroAddress();
 
   // internal functions (views)
@@ -28,19 +31,31 @@ abstract contract Bridged {
     _crossDomainMessenger = crossDomainMessenger;
   }
 
+  function _addIncomingMessageId(uint256 messageId) internal {
+    if (_incomingMessages[messageId]) {
+      revert IncomingMessagesAlreadyExists();
+    }
+
+    _incomingMessages[messageId] = true;
+  }
+
+  function _incOutgoingMessageCounter() internal returns (uint256) {
+    return ++_outgoingMessageCounter;
+  }
+
   function _sendMessage(
-    address _target,
-    bytes memory _message,
-    uint32 _gasLimit
+    address target,
+    bytes memory message,
+    uint32 gasLimit
   ) internal {
     if (_crossDomainMessenger == address(0)) {
       revert CrossDomainMessengerIsTheZeroAddress();
     }
 
     ICrossDomainMessenger(_crossDomainMessenger).sendMessage(
-      _target,
-      _message,
-      _gasLimit
+      target,
+      message,
+      gasLimit
     );
   }
 }

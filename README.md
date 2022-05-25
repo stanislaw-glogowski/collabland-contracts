@@ -4,6 +4,8 @@
 
 ## Installation
 
+### [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
+
 ```bash
 $ git clone https://github.com/abridged/collabland-contracts.git
 $ cd ./collabland-contracts
@@ -27,7 +29,6 @@ $ npm run link
 
 ### Local environment
 
-[Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
 
 ```bash
 $ ./local.sh bootstrap  # pulls latest version of optimism

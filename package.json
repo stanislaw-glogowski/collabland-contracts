@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap --no-ci",
+    "bootstrap": "lerna bootstrap",
     "clean": "lerna run clean && lerna clean",
     "compile": "lerna run compile",
     "coverage": "lerna run coverage",

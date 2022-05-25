@@ -34,7 +34,7 @@ jobs:
           CI: false
 
       - name: Run bootstrap
-        run: npm run bootstrap
+        run: npm run bootstrap -- --no-ci
 
       - name: Run link
         run: npm run link

@@ -12,7 +12,7 @@ $ npm i @abridged/collabland-tipping-contracts -S
 
 > TODO
 
-## Local development
+## Development
 
 ### [Prerequisites](https://github.com/abridged/collabland-contracts#installation)
 

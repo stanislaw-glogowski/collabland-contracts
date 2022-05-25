@@ -23,9 +23,9 @@ $ npm run link
 
 * [Cross domain messaging](./examples/cross-domain-messaging) 
 
-## Local development
+## Development
 
-### Local environment options
+### Local environment
 
 [Prerequisites](https://community.optimism.io/docs/developers/build/dev-node/#prerequisites)
 

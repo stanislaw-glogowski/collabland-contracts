@@ -56,7 +56,7 @@ abstract contract GatewayContext is Context {
 
 ```
 
-## Local development
+## Development
 
 ### [Prerequisites](https://github.com/abridged/collabland-contracts#installation)
 

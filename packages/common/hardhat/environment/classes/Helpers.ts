@@ -1,8 +1,13 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { ContractTransaction, ContractReceipt, Contract } from 'ethers';
+import { ContractTransaction, ContractReceipt, Contract, Signer } from 'ethers';
 import kleur from 'kleur';
-import { bindObjectMethods, ProcessEnvNames } from '../../shared';
+import {
+  bindObjectMethods,
+  ProcessEnvNames,
+  HARDHAT_MNEMONIC,
+  HARDHAT_PATH_PREFIX,
+} from '../../shared';
 
 export class Helpers {
   private signers: SignerWithAddress[];
@@ -10,6 +15,26 @@ export class Helpers {
 
   constructor(private readonly hre: HardhatRuntimeEnvironment) {
     bindObjectMethods(this);
+  }
+
+  createSigner(mnemonic?: string, index = 0): Signer & { address?: string } {
+    const {
+      ethers: { Wallet, provider },
+    } = this.hre;
+
+    return Wallet.fromMnemonic(
+      mnemonic || HARDHAT_MNEMONIC,
+      `${HARDHAT_PATH_PREFIX}${index}`,
+    ).connect(provider);
+  }
+
+  createSigners(
+    mnemonic?: string,
+    count = 5,
+  ): Array<Signer & { address?: string }> {
+    return Array(count)
+      .fill(1)
+      .map((value, index) => this.createSigner(mnemonic, index));
   }
 
   async getContract<T extends Contract = Contract>(
@@ -239,7 +264,7 @@ export class Helpers {
     const { alias, address } = contract;
 
     console.log('Contract', kleur.yellow(alias));
-    console.log('        ', kleur.bgYellow(address));
+    console.log('        ', kleur.cyan(address));
   }
 
   logTransaction(hash: string): void {
@@ -247,5 +272,11 @@ export class Helpers {
     console.log(
       `${kleur.blue('→')} Transaction sent (hash: ${kleur.dim(hash)})`,
     );
+  }
+
+  logExit(): void {
+    console.clear();
+    console.log();
+    console.log(kleur.italic('bye, bye ...'));
   }
 }

@@ -6,7 +6,7 @@ const DEFAULT_GAS_LIMIT = 200000;
 
 runScript(async (hre) => {
   const {
-    helpers: { logTransaction, logNetwork, getContract, logContract },
+    helpers: { logTransaction, logNetwork, getContract, logContract, logExit },
   } = hre;
 
   logNetwork();
@@ -26,7 +26,7 @@ runScript(async (hre) => {
     });
 
     if (!message) {
-      break;
+      return logExit();
     }
 
     const { gasLimit }: { gasLimit: number } = await prompts({

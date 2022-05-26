@@ -47,7 +47,7 @@ task(TASK_NAME, 'Watch for contract events')
         }, {});
 
         console.log();
-        console.log(`${kleur.blue('→')} ${kleur.blue(name)} emitted`, data);
+        console.log(`${kleur.blue('→')} ${kleur.cyan(name)} emitted`, data);
       }
 
       if (logs.length) {

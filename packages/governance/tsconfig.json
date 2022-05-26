@@ -3,6 +3,7 @@
   "include": [
     "./deploy/**/*.ts",
     "../../examples/cross-domain-messaging/scripts/**/*.ts",
+    "./scripts/**/*.ts",
     "./test/**/*.ts",
     "./typechain/**/*.ts"
   ],

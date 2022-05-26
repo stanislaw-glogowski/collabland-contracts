@@ -1,8 +1,8 @@
 # Collab.Land contracts
 
 [![License MIT][license-image]][license-url]
-[![Coverage workflow](https://github.com/abridged/collabland-contracts/actions/workflows/coverage.yml/badge.svg)](https://github.com/abridged/collabland-contracts/actions/workflows/coverage.yml)
-[![Linter and tests workflow](https://github.com/abridged/collabland-contracts/actions/workflows/linter-and-tests.yml/badge.svg)](https://github.com/abridged/collabland-contracts/actions/workflows/linter-and-tests.yml)
+[![Coverage workflow][coverage-image]][coverage-url]
+[![Linter and tests workflow][linter-and-tests-image]][linter-and-tests-url]
 
 ## Installation
 
@@ -55,3 +55,9 @@ $ npm run test        # runs unit tests in all packages
 
 [license-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [license-url]: https://github.com/abridged/collabland-contracts/blob/master/LICENSE
+
+[coverage-image]: https://github.com/abridged/collabland-contracts/actions/workflows/coverage.yml/badge.svg
+[coverage-url]: https://github.com/abridged/collabland-contracts/actions/workflows/coverage.yml
+
+[linter-and-tests-image]: https://github.com/abridged/collabland-contracts/actions/workflows/linter-and-tests.yml/badge.svg
+[linter-and-tests-url]: https://github.com/abridged/collabland-contracts/actions/workflows/linter-and-tests.yml

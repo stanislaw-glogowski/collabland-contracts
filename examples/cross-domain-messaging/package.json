@@ -12,8 +12,8 @@
     "predeploy:local-optimism": "npm run faucet:local-optimism",
     "deploy:local": "hardhat deploy --network local",
     "deploy:local-optimism": "hardhat deploy --network local-optimism",
-    "send-message:local": "hardhat run scripts/send-message.ts --network local",
-    "send-message:local-optimism": "hardhat run scripts/send-message.ts --network local-optimism",
+    "demo:local": "hardhat run scripts/demo.ts --network local",
+    "demo:local-optimism": "hardhat run scripts/demo.ts --network local-optimism",
     "watch-events:local": "hardhat watch-events --contract Example --network local",
     "watch-events:local-optimism": "hardhat watch-events --contract Example --network local-optimism"
   },

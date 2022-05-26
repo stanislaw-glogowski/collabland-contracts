@@ -22,8 +22,8 @@ Run the scripts below in separate windows:
 ```bash
 $ npm run watch-events:local           # window 1
 $ npm run watch-events:local-optimism  # window 2
-$ npm run send-message:local           # window 3
-$ npm run send-message:local-optimism  # window 4
+$ npm run demo:local                   # window 3
+$ npm run demo:local-optimism          # window 4
 ```
 
 ## License

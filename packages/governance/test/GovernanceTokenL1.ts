@@ -222,7 +222,7 @@ describe('GovernanceTokenL1', () => {
             [0],
             [[]],
           ),
-        ).revertedWith('OnlySelfCall()');
+        ).revertedWith('OnlyCrossDomainSelfCall()');
       });
 
       it('expect to process the proposal', async () => {

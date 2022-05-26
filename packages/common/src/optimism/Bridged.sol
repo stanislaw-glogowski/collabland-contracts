@@ -14,7 +14,7 @@ abstract contract Bridged {
   error MsgSenderIsNotTheCrossDomainMessenger();
   error IncomingMessagesAlreadyExists();
   error CrossDomainMessengerIsTheZeroAddress();
-  error OnlySelfCall();
+  error OnlyCrossDomainSelfCall();
 
   // modifiers
 
@@ -26,12 +26,12 @@ abstract contract Bridged {
     _;
   }
 
-  modifier onlySelfCall() {
+  modifier onlyCrossDomainSelfCall() {
     if (
       _crossDomainMessenger != msg.sender ||
       address(this) != _xDomainMessageSender()
     ) {
-      revert OnlySelfCall();
+      revert OnlyCrossDomainSelfCall();
     }
 
     _;

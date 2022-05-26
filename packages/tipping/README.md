@@ -8,10 +8,6 @@
 $ npm i @abridged/collabland-tipping-contracts -S
 ```
 
-## Usage
-
-> TODO
-
 ## Development
 
 ### [Prerequisites](https://github.com/abridged/collabland-contracts#installation)
@@ -38,11 +34,11 @@ $ npm run test                                          # runs unit tests
 $ npm run deploy:<network alias>                        # deploys contracts to <network alias>
 
 $ npm run watch-events:<contract name>:<network alias>  # watches for events on <network alias> (local network type only)
-                                                        # <contract name> contract
+                                                        # <contract name>[L1,L2] contract
                                                         #
                                                         # Supported contracts:
-                                                        # - TippingToken
-                                                        # - WalletManager
+                                                        # * TippingToken
+                                                        # * GnosisSafeRegistry
 ```
 
 ## License

@@ -75,7 +75,7 @@ contract GovernanceTokenL1 is Ownable, GovernanceToken, ERC20Basic {
     address[] calldata callTo,
     uint256[] calldata callValue,
     bytes[] calldata callData
-  ) external onlySelfCall {
+  ) external onlyCrossDomainSelfCall {
     _addIncomingMessageId(messageId);
 
     uint256 len = callTo.length;
@@ -106,14 +106,14 @@ contract GovernanceTokenL1 is Ownable, GovernanceToken, ERC20Basic {
     internal
     override(ERC20Basic, ERC20)
   {
-    return ERC20Basic._mintHandler(to, amount);
+    ERC20Basic._mintHandler(to, amount);
   }
 
   function _burnHandler(address from, uint256 amount)
     internal
     override(ERC20Basic, ERC20)
   {
-    return ERC20Basic._burnHandler(from, amount);
+    ERC20Basic._burnHandler(from, amount);
   }
 
   function _transferHandler(
@@ -121,6 +121,6 @@ contract GovernanceTokenL1 is Ownable, GovernanceToken, ERC20Basic {
     address to,
     uint256 amount
   ) internal override(ERC20Basic, ERC20) {
-    return ERC20Basic._transferHandler(from, to, amount);
+    ERC20Basic._transferHandler(from, to, amount);
   }
 }

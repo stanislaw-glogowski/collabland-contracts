@@ -13,35 +13,35 @@ export class Helpers {
   }
 
   async getContract<T extends Contract = Contract>(
-    name: string,
-  ): Promise<T & { name?: string }> {
-    let result = await this.getDeployedContract<T>(name);
+    alias: string,
+  ): Promise<T & { alias?: string }> {
+    let result = await this.getDeployedContract<T>(alias);
 
     if (!result) {
-      result = await this.getBridgedContract<T>(name);
+      result = await this.getBridgedContract<T>(alias);
     }
 
     if (!result) {
-      throw new Error(`Contract ${name} not found`);
+      throw new Error(`Contract ${alias} not found`);
     }
 
     return result;
   }
 
   async getDeployedContract<T extends Contract = Contract>(
-    name: string,
-  ): Promise<T & { name?: string }> {
-    let result: T & { name?: string } = null;
+    alias: string,
+  ): Promise<T & { alias?: string }> {
+    let result: T & { alias?: string } = null;
 
     try {
       const {
         deployments: { get },
         ethers: { provider },
       } = this.hre;
-      const { address, abi } = await get(name);
+      const { address, abi } = await get(alias);
 
       result = new Contract(address, abi, provider) as any;
-      result.name = name;
+      result.alias = alias;
     } catch (err) {
       //
     }
@@ -51,8 +51,8 @@ export class Helpers {
 
   async getBridgedContract<T extends Contract = Contract>(
     namePrefix: string,
-  ): Promise<T & { name?: string }> {
-    let result: T & { name?: string } = null;
+  ): Promise<T & { alias?: string }> {
+    let result: T & { alias?: string } = null;
 
     const {
       deployments: { get },
@@ -70,7 +70,7 @@ export class Helpers {
         const { address } = await get(name);
 
         result = (await Factory.attach(address)) as any;
-        result.name = name;
+        result.alias = name;
       } catch (err) {
         //
       }
@@ -235,9 +235,10 @@ export class Helpers {
     console.log();
   }
 
-  logContract(contract: Contract & { name?: string }): void {
-    const { name, address } = contract;
-    console.log('Contract', kleur.yellow(name));
+  logContract(contract: Contract & { alias?: string }): void {
+    const { alias, address } = contract;
+
+    console.log('Contract', kleur.yellow(alias));
     console.log('        ', kleur.bgYellow(address));
   }
 

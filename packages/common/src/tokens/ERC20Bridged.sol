@@ -70,7 +70,7 @@ abstract contract ERC20Bridged is Bridged, ERC20 {
     uint256 messageId,
     address to,
     uint256 amount
-  ) external onlySelfCall {
+  ) external onlyCrossDomainSelfCall {
     _addIncomingMessageId(messageId);
 
     _mint(to, amount);
@@ -80,7 +80,7 @@ abstract contract ERC20Bridged is Bridged, ERC20 {
     uint256 messageId,
     address[] calldata to,
     uint256[] calldata amount
-  ) external onlySelfCall {
+  ) external onlyCrossDomainSelfCall {
     _addIncomingMessageId(messageId);
 
     uint256 len = to.length;

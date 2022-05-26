@@ -17,10 +17,10 @@
     "deploy:gnosis": "hardhat deploy --network gnosis",
     "deploy:gnosis-optimism": "hardhat deploy --network gnosis-optimism",
     "test": "hardhat test",
-    "watch-events:TippingToken:local": "hardhat watch-events --name TippingToken --network local",
-    "watch-events:TippingToken:local-optimism": "hardhat watch-events --name TippingToken --network local-optimism",
-    "watch-events:WalletManager:local": "hardhat watch-events --name WalletManager --network local",
-    "watch-events:WalletManager:local-optimism": "hardhat watch-events --name WalletManager --network local-optimism"
+    "watch-events:TippingToken:local": "hardhat watch-events --contract TippingToken --network local",
+    "watch-events:TippingToken:local-optimism": "hardhat watch-events --contract TippingToken --network local-optimism",
+    "watch-events:GnosisSafeRegistry:local": "hardhat watch-events --contract GnosisSafeRegistry --network local",
+    "watch-events:GnosisSafeRegistry:local-optimism": "hardhat watch-events --contract GnosisSafeRegistry --network local-optimism"
   },
   "dependencies": {
     "@abridged/collabland-common-contracts": "0.0.1",

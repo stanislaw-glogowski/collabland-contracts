@@ -3,68 +3,124 @@ import { DeployFunction } from 'hardhat-deploy/types';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {
-    getUnnamedAccounts,
-    deployments: { execute, get, read, log },
+    deployments: { execute, read, log, get },
+    helpers: { getAccounts },
+    processNetworkEnvs: { getEnvAsAddressArray, getEnvAsAmount },
+    optimism: {
+      contracts: { l1, l2 },
+    },
   } = hre;
 
-  const [from] = await getUnnamedAccounts();
+  const [from] = await getAccounts();
 
-  const { address: gateway } = await get('Gateway');
-  const { address: walletManager } = await get('WalletManager');
+  const INITIAL_SUPPLY = getEnvAsAmount(
+    'TippingToken.INITIAL_SUPPLY',
+    '100000000', // 100,000,000 * 10 ** 18
+  );
 
-  if (await read('Gateway', 'initialized')) {
-    log('Gateway already initialized');
-  } else {
-    const CONTROLLERS = [];
+  // layer 1
+  if (l1) {
+    log();
 
-    await execute(
-      'Gateway',
-      {
-        from,
-        log: true,
-      },
-      'initialize',
-      walletManager,
-      CONTROLLERS,
-    );
+    if (await read('TippingTokenL1', 'initialized')) {
+      log('TippingTokenL1 already initialized');
+    } else {
+      await execute(
+        'TippingTokenL1',
+        {
+          from,
+          log: true,
+        },
+        'initialize',
+        l1.crossDomainMessenger,
+        INITIAL_SUPPLY,
+      );
+    }
+
+    log();
+
+    if (await read('GnosisSafeRegistryL1', 'initialized')) {
+      log('GnosisSafeRegistryL1 already initialized');
+    } else {
+      await execute(
+        'GnosisSafeRegistryL1',
+        {
+          from,
+          log: true,
+        },
+        'initialize',
+        l1.crossDomainMessenger,
+      );
+    }
   }
 
-  log();
+  // layer 1
+  if (l2) {
+    log();
 
-  if (await read('TippingToken', 'initialized')) {
-    log('TippingToken already initialized');
-  } else {
-    const CONTROLLERS = [];
+    const { address: gateway } = await get('Gateway');
 
-    await execute(
-      'TippingToken',
-      {
-        from,
-        log: true,
-      },
-      'initialize',
-      gateway,
-      CONTROLLERS,
-    );
+    if (await read('TippingTokenL2', 'initialized')) {
+      log('TippingTokenL2 already initialized');
+    } else {
+      const CONTROLLERS = getEnvAsAddressArray(
+        'TippingToken.CONTROLLERS', //
+        [from],
+      );
+
+      await execute(
+        'TippingTokenL2',
+        {
+          from,
+          log: true,
+        },
+        'initialize',
+        CONTROLLERS,
+        gateway,
+        l2.crossDomainMessenger,
+        INITIAL_SUPPLY,
+      );
+    }
+
+    if (await read('GnosisSafeRegistryL2', 'initialized')) {
+      log('GnosisSafeRegistryL2 already initialized');
+    } else {
+      await execute(
+        'GnosisSafeRegistryL2',
+        {
+          from,
+          log: true,
+        },
+        'initialize',
+        l2.crossDomainMessenger,
+        gateway,
+      );
+    }
+
+    log();
+
+    if (await read('Gateway', 'initialized')) {
+      log('Gateway already initialized');
+    } else {
+      const { address: walletRegistry } = await get('GnosisSafeRegistryL2');
+
+      const CONTROLLERS = getEnvAsAddressArray(
+        'Gateway.CONTROLLERS', //
+        [from],
+      );
+
+      await execute(
+        'Gateway',
+        {
+          from,
+          log: true,
+        },
+        'initialize',
+        walletRegistry,
+        CONTROLLERS,
+      );
+    }
   }
-
-  log();
-
-  if (await read('WalletManager', 'initialized')) {
-    log('WalletManager already initialized');
-  } else {
-    await execute(
-      'WalletManager',
-      {
-        from,
-        log: true,
-      },
-      'initialize',
-      gateway,
-    );
-  }
-
-  log();
 };
 
 func.tags = ['initialize'];

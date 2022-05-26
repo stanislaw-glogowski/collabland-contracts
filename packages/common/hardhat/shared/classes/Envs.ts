@@ -45,10 +45,10 @@ export class Envs {
     return result || defaultValue;
   }
 
-  getEnvAsAddressArray(name: string): string[] {
+  getEnvAsAddressArray(name: string, defaultValue: string[] = []): string[] {
     const value = this.getEnvValue(name) || '';
 
-    return value
+    let result = value
       .split(',')
       .map((address) => {
         let result: string = null;
@@ -62,6 +62,12 @@ export class Envs {
         return result;
       })
       .filter((value) => !!value);
+
+    if (!result.length) {
+      result = defaultValue;
+    }
+
+    return result;
   }
 
   getEnvAsAmount(name: string, defaultValue: string): string {

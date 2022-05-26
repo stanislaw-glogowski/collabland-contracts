@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import {
   Gateway,
   GatewayContextMock,
-  WalletManager,
+  WalletRegistry,
   GnosisSafeL2__factory as GnosisSafeL2Factory,
 } from '../typechain';
 
@@ -26,7 +26,7 @@ const {
 describe('Gateway', () => {
   const walletSalt = randomHex32();
   let walletAddress: string;
-  let walletManager: WalletManager;
+  let walletRegistry: WalletRegistry;
   let gateway: Gateway;
   let gatewayContext: GatewayContextMock;
   let controller: SignerWithAddress;
@@ -42,7 +42,7 @@ describe('Gateway', () => {
       'GatewayContextMock',
     );
 
-    const WalletManagerFactory = await getContractFactory('WalletManager');
+    const WalletRegistryFactory = await getContractFactory('WalletRegistry');
 
     gateway = await processDeployment(GatewayFactory.deploy());
 
@@ -50,10 +50,10 @@ describe('Gateway', () => {
       GatewayContextMockFactory.deploy(gateway.address),
     );
 
-    walletManager = await processDeployment(WalletManagerFactory.deploy());
+    walletRegistry = await processDeployment(WalletRegistryFactory.deploy());
 
     walletAddress = getCreate2Address(
-      walletManager.address,
+      walletRegistry.address,
       walletSalt,
       keccak256(GnosisSafeL2Factory.bytecode),
     );
@@ -73,10 +73,10 @@ describe('Gateway', () => {
       await revertSnapshot();
 
       if (options.initialize) {
-        await processTransaction(walletManager.initialize(gateway.address));
+        await processTransaction(walletRegistry.initialize(gateway.address));
 
         await processTransaction(
-          gateway.initialize(walletManager.address, [controller.address]),
+          gateway.initialize(walletRegistry.address, [controller.address]),
         );
       }
     });
@@ -91,20 +91,20 @@ describe('Gateway', () => {
       initialize: false,
     });
 
-    it('expect to revert when wallet manager is the zero address', async () => {
+    it('expect to revert when wallet registry is the zero address', async () => {
       await expect(gateway.initialize(AddressZero, [AddressZero])).revertedWith(
-        'WalletManagerIsTheZeroAddress()',
+        'WalletRegistryIsTheZeroAddress()',
       );
     });
 
     it('expect to initialize the contract', async () => {
       const { tx } = await processTransaction(
-        gateway.initialize(walletManager.address, [controller.address]),
+        gateway.initialize(walletRegistry.address, [controller.address]),
       );
 
       expect(tx)
         .to.emit(gateway, 'Initialized')
-        .withArgs(walletManager.address, [controller.address]);
+        .withArgs(walletRegistry.address, [controller.address]);
     });
 
     it('expect to revert when contract is already initialized', async () => {
@@ -130,18 +130,18 @@ describe('Gateway', () => {
           .forwardWalletCalls(
             walletSalt,
             [
-              walletManager.address,
-              walletManager.address,
-              walletManager.address,
+              walletRegistry.address,
+              walletRegistry.address,
+              walletRegistry.address,
             ],
             [
-              walletManager.interface.encodeFunctionData('addWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('addWalletOwner', [
                 account.address,
               ]),
-              walletManager.interface.encodeFunctionData('addWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('addWalletOwner', [
                 removedAccount.address,
               ]),
-              walletManager.interface.encodeFunctionData('removeWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('removeWalletOwner', [
                 removedAccount.address,
               ]),
             ],
@@ -191,7 +191,7 @@ describe('Gateway', () => {
             ),
         );
 
-        expect(tx).to.emit(walletManager, 'MsgSender').withArgs(walletAddress);
+        expect(tx).to.emit(walletRegistry, 'MsgSender').withArgs(walletAddress);
       });
 
       it('expect to forward wallet call by the account', async () => {
@@ -205,7 +205,7 @@ describe('Gateway', () => {
             ),
         );
 
-        expect(tx).to.emit(walletManager, 'MsgSender').withArgs(walletAddress);
+        expect(tx).to.emit(walletRegistry, 'MsgSender').withArgs(walletAddress);
       });
     });
   });

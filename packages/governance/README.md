@@ -8,10 +8,6 @@
 $ npm i @abridged/collabland-governance-contracts -S
 ```
 
-## Usage
-
-> TODO
-
 ## Development
 
 ### [Prerequisites](https://github.com/abridged/collabland-contracts#installation)
@@ -38,7 +34,7 @@ $ npm run test                          # runs unit tests
 $ npm run deploy:<network-alias>        # deploys contracts to <network-alias>
 
 $ npm run watch-events:<network-alias>  # watches for events on <network-alias> (local network type only)
-                                        # GovernanceToken* contract
+                                        # GovernanceToken[L1,L2] contract
 ```
 
 ## License

@@ -1,10 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { ethers, helpers } from 'hardhat';
 import { expect } from 'chai';
-import {
-  WalletManager,
-  GnosisSafeL2__factory as GnosisSafeL2Factory,
-} from '../typechain';
+import { WalletRegistry, Wallet__factory as WalletFactory } from '../typechain';
 
 const {
   getContractFactory,
@@ -22,10 +19,10 @@ const {
   randomHex32,
 } = helpers;
 
-describe('WalletManager', () => {
+describe('WalletRegistry', () => {
   const walletSalt = randomHex32();
   let walletAddress: string;
-  let walletManager: WalletManager;
+  let walletRegistry: WalletRegistry;
   let deployer: SignerWithAddress;
   let gateway: SignerWithAddress;
   let account: SignerWithAddress;
@@ -33,14 +30,14 @@ describe('WalletManager', () => {
   before(async () => {
     [deployer, gateway, account] = await getSigners();
 
-    const WalletManagerFactory = await getContractFactory('WalletManager');
+    const WalletRegistryFactory = await getContractFactory('WalletRegistry');
 
-    walletManager = await processDeployment(WalletManagerFactory.deploy());
+    walletRegistry = await processDeployment(WalletRegistryFactory.deploy());
 
     walletAddress = getCreate2Address(
-      walletManager.address,
+      walletRegistry.address,
       walletSalt,
-      keccak256(GnosisSafeL2Factory.bytecode),
+      keccak256(WalletFactory.bytecode),
     );
   });
 
@@ -58,7 +55,7 @@ describe('WalletManager', () => {
       await revertSnapshot();
 
       if (options.initialize) {
-        await processTransaction(walletManager.initialize(gateway.address));
+        await processTransaction(walletRegistry.initialize(gateway.address));
       }
     });
   };
@@ -76,16 +73,16 @@ describe('WalletManager', () => {
       const gateway = randomAddress();
 
       const { tx } = await processTransaction(
-        walletManager.initialize(gateway),
+        walletRegistry.initialize(gateway),
       );
 
-      expect(tx).to.emit(walletManager, 'Initialized').withArgs(gateway);
+      expect(tx).to.emit(walletRegistry, 'Initialized').withArgs(gateway);
     });
 
     it('expect to revert when contract is already initialized', async () => {
-      expect(await walletManager.initialized()).to.eq(true);
+      expect(await walletRegistry.initialized()).to.eq(true);
 
-      await expect(walletManager.initialize(AddressZero)).revertedWith(
+      await expect(walletRegistry.initialize(AddressZero)).revertedWith(
         'AlreadyInitialized()',
       );
     });
@@ -96,7 +93,7 @@ describe('WalletManager', () => {
 
     describe('computeWalletAddress()', () => {
       it('expect to compute correct wallet address', async () => {
-        expect(await walletManager.computeWalletAddress(walletSalt)).to.eq(
+        expect(await walletRegistry.computeWalletAddress(walletSalt)).to.eq(
           walletAddress,
         );
       });
@@ -111,9 +108,9 @@ describe('WalletManager', () => {
       before(async () => {
         await processTransaction(
           gateway.sendTransaction({
-            to: walletManager.address,
+            to: walletRegistry.address,
             data: concat([
-              walletManager.interface.encodeFunctionData('addWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('addWalletOwner', [
                 data.ownerAdded,
               ]),
               walletAddress,
@@ -123,9 +120,9 @@ describe('WalletManager', () => {
 
         await processTransaction(
           gateway.sendTransaction({
-            to: walletManager.address,
+            to: walletRegistry.address,
             data: concat([
-              walletManager.interface.encodeFunctionData('addWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('addWalletOwner', [
                 data.ownerRemoved,
               ]),
               walletAddress,
@@ -135,9 +132,9 @@ describe('WalletManager', () => {
 
         await processTransaction(
           gateway.sendTransaction({
-            to: walletManager.address,
+            to: walletRegistry.address,
             data: concat([
-              walletManager.interface.encodeFunctionData('removeWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('removeWalletOwner', [
                 data.ownerRemoved,
               ]),
               walletAddress,
@@ -153,7 +150,7 @@ describe('WalletManager', () => {
         // WalletOwnerStates.Unknown
 
         ({ wallet, ownerVerified } =
-          await walletManager.computeWalletAddressAndVerifyOwner(
+          await walletRegistry.computeWalletAddressAndVerifyOwner(
             walletSalt,
             randomAddress(),
           ));
@@ -164,7 +161,7 @@ describe('WalletManager', () => {
         // WalletOwnerStates.Added
 
         ({ wallet, ownerVerified } =
-          await walletManager.computeWalletAddressAndVerifyOwner(
+          await walletRegistry.computeWalletAddressAndVerifyOwner(
             walletSalt,
             data.ownerAdded,
           ));
@@ -175,7 +172,7 @@ describe('WalletManager', () => {
         // WalletOwnerStates.Removed
 
         ({ wallet, ownerVerified } =
-          await walletManager.computeWalletAddressAndVerifyOwner(
+          await walletRegistry.computeWalletAddressAndVerifyOwner(
             walletSalt,
             data.ownerRemoved,
           ));
@@ -191,24 +188,26 @@ describe('WalletManager', () => {
       createBeforeHook();
 
       before(async () => {
-        await processTransaction(walletManager.addWalletOwner(account.address));
+        await processTransaction(
+          walletRegistry.addWalletOwner(account.address),
+        );
       });
 
       it('expect to revert when owner is the zero address', async () => {
-        await expect(walletManager.addWalletOwner(AddressZero)).revertedWith(
+        await expect(walletRegistry.addWalletOwner(AddressZero)).revertedWith(
           'WalletOwnerIsTheZeroAddress()',
         );
       });
 
       it('expect to revert when owner already exists', async () => {
         await expect(
-          walletManager.addWalletOwner(account.address),
+          walletRegistry.addWalletOwner(account.address),
         ).revertedWith('WalletOwnerAlreadyExists()');
       });
 
       it('expect to revert when gateway exists as an owner', async () => {
         await expect(
-          walletManager.addWalletOwner(gateway.address),
+          walletRegistry.addWalletOwner(gateway.address),
         ).revertedWith('WalletOwnerAlreadyExists()');
       });
 
@@ -216,28 +215,28 @@ describe('WalletManager', () => {
         const owner = randomAddress();
 
         const { tx } = await processTransaction(
-          walletManager.addWalletOwner(owner),
+          walletRegistry.addWalletOwner(owner),
         );
 
         expect(tx)
-          .to.emit(walletManager, 'WalletOwnerAdded')
+          .to.emit(walletRegistry, 'WalletOwnerAdded')
           .withArgs(deployer.address, owner);
       });
 
       describe('# after removing the gateway as an owner', () => {
         before(async () => {
           await processTransaction(
-            walletManager.removeWalletOwner(gateway.address),
+            walletRegistry.removeWalletOwner(gateway.address),
           );
         });
 
         it('expect to remove the gateway', async () => {
           const { tx } = await processTransaction(
-            walletManager.addWalletOwner(gateway.address),
+            walletRegistry.addWalletOwner(gateway.address),
           );
 
           expect(tx)
-            .to.emit(walletManager, 'WalletOwnerAdded')
+            .to.emit(walletRegistry, 'WalletOwnerAdded')
             .withArgs(deployer.address, gateway.address);
         });
       });
@@ -251,23 +250,27 @@ describe('WalletManager', () => {
       };
 
       before(async () => {
-        await processTransaction(walletManager.addWalletOwner(account.address));
-        await processTransaction(walletManager.addWalletOwner(data.removed));
-        await processTransaction(walletManager.removeWalletOwner(data.removed));
+        await processTransaction(
+          walletRegistry.addWalletOwner(account.address),
+        );
+        await processTransaction(walletRegistry.addWalletOwner(data.removed));
+        await processTransaction(
+          walletRegistry.removeWalletOwner(data.removed),
+        );
       });
 
       it('expect to revert when owner is the zero address', async () => {
-        await expect(walletManager.removeWalletOwner(AddressZero)).revertedWith(
-          'WalletOwnerIsTheZeroAddress()',
-        );
+        await expect(
+          walletRegistry.removeWalletOwner(AddressZero),
+        ).revertedWith('WalletOwnerIsTheZeroAddress()');
       });
 
       it('expect to revert on ownerless wallet', async () => {
         await expect(
           gateway.sendTransaction({
-            to: walletManager.address,
+            to: walletRegistry.address,
             data: concat([
-              walletManager.interface.encodeFunctionData('removeWalletOwner', [
+              walletRegistry.interface.encodeFunctionData('removeWalletOwner', [
                 gateway.address,
               ]),
               walletAddress,
@@ -278,50 +281,50 @@ describe('WalletManager', () => {
 
       it("expect to revert when owner doesn't exist", async () => {
         await expect(
-          walletManager.removeWalletOwner(randomAddress()),
+          walletRegistry.removeWalletOwner(randomAddress()),
         ).revertedWith('WalletOwnerDoesntExist()');
       });
 
       it('expect to remove the gateway', async () => {
         const { tx } = await processTransaction(
-          walletManager.removeWalletOwner(gateway.address),
+          walletRegistry.removeWalletOwner(gateway.address),
         );
 
         expect(tx)
-          .to.emit(walletManager, 'WalletOwnerRemoved')
+          .to.emit(walletRegistry, 'WalletOwnerRemoved')
           .withArgs(deployer.address, gateway.address);
       });
 
       it('expect to remove wallet owner', async () => {
         const { tx } = await processTransaction(
-          walletManager.removeWalletOwner(account.address),
+          walletRegistry.removeWalletOwner(account.address),
         );
 
         expect(tx)
-          .to.emit(walletManager, 'WalletOwnerRemoved')
+          .to.emit(walletRegistry, 'WalletOwnerRemoved')
           .withArgs(deployer.address, account.address);
       });
 
       it('expect to revert when owner was removed', async () => {
         await expect(
-          walletManager.removeWalletOwner(account.address),
+          walletRegistry.removeWalletOwner(account.address),
         ).revertedWith('WalletOwnerDoesntExist()');
       });
 
       describe('# after adding the gateway as an owner', () => {
         before(async () => {
           await processTransaction(
-            walletManager.addWalletOwner(gateway.address),
+            walletRegistry.addWalletOwner(gateway.address),
           );
         });
 
         it('expect to remove the gateway', async () => {
           const { tx } = await processTransaction(
-            walletManager.removeWalletOwner(gateway.address),
+            walletRegistry.removeWalletOwner(gateway.address),
           );
 
           expect(tx)
-            .to.emit(walletManager, 'WalletOwnerRemoved')
+            .to.emit(walletRegistry, 'WalletOwnerRemoved')
             .withArgs(deployer.address, gateway.address);
         });
       });

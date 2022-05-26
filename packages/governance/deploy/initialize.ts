@@ -27,7 +27,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // layer 1
   if (l1) {
     if (await read('GovernanceTokenL1', 'initialized')) {
-      log('ExampleL1 already initialized');
+      log('GovernanceTokenL1 already initialized');
     } else {
       await execute(
         'GovernanceTokenL1',
@@ -49,6 +49,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     } else {
       const CONTROLLERS = getEnvAsAddressArray(
         'GovernanceToken.CONTROLLERS', //
+        [from],
       );
       const SNAPSHOT_WINDOW_LENGTH = getEnvAsNumber(
         'GovernanceToken.SNAPSHOT_WINDOW_LENGTH',

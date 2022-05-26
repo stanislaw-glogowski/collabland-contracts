@@ -3,10 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
-import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
 import "./GatewayContext.sol";
+import "./IWalletRegistry.sol";
+import "./Wallet.sol";
 
-contract WalletManager is Initializable, GatewayContext {
+contract WalletRegistry is Initializable, GatewayContext, IWalletRegistry {
   enum WalletOwnerStates {
     Unknown,
     Added,
@@ -38,7 +39,7 @@ contract WalletManager is Initializable, GatewayContext {
   // constructor
 
   constructor() Initializable() {
-    _walletCreationCodeHash = keccak256(type(GnosisSafeL2).creationCode);
+    _walletCreationCodeHash = keccak256(type(Wallet).creationCode);
   }
 
   // initialize

@@ -303,14 +303,14 @@ contract GovernanceTokenL2 is Controlled, GovernanceToken, ERC20Snapshot {
     internal
     override(ERC20Snapshot, ERC20)
   {
-    return ERC20Snapshot._mintHandler(to, amount);
+    ERC20Snapshot._mintHandler(to, amount);
   }
 
   function _burnHandler(address from, uint256 amount)
     internal
     override(ERC20Snapshot, ERC20)
   {
-    return ERC20Snapshot._burnHandler(from, amount);
+    ERC20Snapshot._burnHandler(from, amount);
   }
 
   function _transferHandler(
@@ -318,6 +318,6 @@ contract GovernanceTokenL2 is Controlled, GovernanceToken, ERC20Snapshot {
     address to,
     uint256 amount
   ) internal override(ERC20Snapshot, ERC20) {
-    return ERC20Snapshot._transferHandler(from, to, amount);
+    ERC20Snapshot._transferHandler(from, to, amount);
   }
 }

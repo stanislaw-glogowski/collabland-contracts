@@ -4,17 +4,17 @@ pragma solidity ^0.8.0;
 
 import "@abridged/collabland-common-contracts/src/access/Controlled.sol";
 import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
-import "./WalletManager.sol";
+import "./IWalletRegistry.sol";
 
 contract Gateway is Controlled, Initializable {
-  WalletManager private _walletManager;
+  IWalletRegistry private _walletRegistry;
 
   // errors
 
   error CallToIsTheZeroAddress();
   error CallToSelfIsForbidden();
   error MsgSenderIsNotTheWalletOwner();
-  error WalletManagerIsTheZeroAddress();
+  error WalletRegistryIsTheZeroAddress();
 
   // events
 
@@ -36,15 +36,15 @@ contract Gateway is Controlled, Initializable {
 
   // initialize
 
-  function initialize(address walletManager, address[] calldata controllers)
+  function initialize(address walletRegistry, address[] calldata controllers)
     external
     initializer
   {
-    if (walletManager == address(0)) {
-      revert WalletManagerIsTheZeroAddress();
+    if (walletRegistry == address(0)) {
+      revert WalletRegistryIsTheZeroAddress();
     }
 
-    _walletManager = WalletManager(walletManager);
+    _walletRegistry = IWalletRegistry(walletRegistry);
 
     _setControllers(controllers);
 
@@ -90,10 +90,11 @@ contract Gateway is Controlled, Initializable {
   {
     bool ownerVerified;
 
-    (result, ownerVerified) = _walletManager.computeWalletAddressAndVerifyOwner(
-      walletSalt,
-      _hasController(sender) ? address(this) : sender
-    );
+    (result, ownerVerified) = _walletRegistry
+      .computeWalletAddressAndVerifyOwner(
+        walletSalt,
+        _hasController(sender) ? address(this) : sender
+      );
 
     if (!ownerVerified) {
       revert MsgSenderIsNotTheWalletOwner();

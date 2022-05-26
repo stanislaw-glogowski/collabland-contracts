@@ -33,10 +33,12 @@ $ npm run coverage                      # runs coverage tests
 $ npm run test                          # runs unit tests
 $ npm run deploy:<network alias>        # deploys contracts to <network alias>
 
-$ npm run demo:<network alias>          # starts interactive demo on <network alias> (local network type only)
+$ npm run demo:<network alias>          # starts interactive demo on <network alias> 
+                                        # (local network type only)
                                         
-$ npm run watch-events:<network alias>  # watches for events on <network alias> (local network type only)
+$ npm run watch-events:<network alias>  # watches for events on <network alias> 
                                         # GovernanceToken[L1,L2] contract
+                                        # (local network type only)
 ```
 
 ## License

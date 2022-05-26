@@ -16,7 +16,9 @@
     "deploy:kovan-optimism": "hardhat deploy --network kovan-optimism",
     "deploy:gnosis": "hardhat deploy --network gnosis",
     "deploy:gnosis-optimism": "hardhat deploy --network gnosis-optimism",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "watch-events:local": "hardhat watch-events --name GovernanceToken --network local",
+    "watch-events:local-optimism": "hardhat watch-events --name GovernanceToken --network local-optimism"
   },
   "dependencies": {
     "@abridged/collabland-common-contracts": "0.0.1"

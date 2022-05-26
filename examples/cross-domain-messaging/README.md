@@ -20,8 +20,8 @@ $ npm run deploy:local-optimism
 Run the scripts below in separate windows:
 
 ```bash
-$ npm run watch-state:local            # window 1
-$ npm run watch-state:local-optimism   # window 2
+$ npm run watch-events:local           # window 1
+$ npm run watch-events:local-optimism  # window 2
 $ npm run send-message:local           # window 3
 $ npm run send-message:local-optimism  # window 4
 ```

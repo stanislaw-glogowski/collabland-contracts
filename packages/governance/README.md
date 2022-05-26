@@ -18,23 +18,27 @@ $ npm i @abridged/collabland-governance-contracts -S
 
 ### Supported networks
 
-| network name       | network alias     | network env var prefix |
-|--------------------|-------------------|------------------------|
-| Local              | `local`           | `LOCAL_`               |
-| Optimism on Local  | `local-optimism`  | `LOCAL_OPTIMISM_`      |
-| Kovan              | `kovan`           | `KOVAN_`               |
-| Optimism on Kovan  | `kovan-optimism`  | `KOVAN_OPTIMISM_`      |
-| Gnosis             | `gnosis`          | `GNOSIS_`              |
-| Optimism on Gnosis | `gnosis-optimism` | `GNOSIS_OPTIMISM_`     |
+| network name       | network type | network alias     | network env var prefix |
+|--------------------|--------------|-------------------|------------------------|
+| Local              | `local`      | `local`           | `LOCAL_`               |
+| Optimism on Local  | `local`      | `local-optimism`  | `LOCAL_OPTIMISM_`      |
+| Kovan              | `testnet`    | `kovan`           | `KOVAN_`               |
+| Optimism on Kovan  | `testnet`    | `kovan-optimism`  | `KOVAN_OPTIMISM_`      |
+| Gnosis             | `mainnet`    | `gnosis`          | `GNOSIS_`              |
+| Optimism on Gnosis | `mainnet`    | `gnosis-optimism` | `GNOSIS_OPTIMISM_`     |
 
 ### NPM scripts
 
 ```bash
 $ cd ./packages/governance
-$ npm run compile                 # compiles all contracts
-$ npm run coverage                # runs coverage tests
-$ npm run test                    # runs unit tests
-$ npm run deploy:<network-alias>  # deploys contracts to <network-alias> network
+
+$ npm run compile                       # compiles all contracts
+$ npm run coverage                      # runs coverage tests
+$ npm run test                          # runs unit tests
+$ npm run deploy:<network-alias>        # deploys contracts to <network-alias>
+
+$ npm run watch-events:<network-alias>  # watches for events on <network-alias> (local network type only)
+                                        # GovernanceToken* contract
 ```
 
 ## License

@@ -1,26 +1,19 @@
 import { runScript } from '@abridged/collabland-common-contracts/scripts';
 import prompts from 'prompts';
-import kleur from 'kleur';
 import { Example } from '../typechain';
 
 const DEFAULT_GAS_LIMIT = 200000;
 
 runScript(async (hre) => {
   const {
-    network: {
-      name: networkName,
-      config: { chainId },
-    },
-    helpers: { getBridgedContract },
+    helpers: { logTransaction, logNetwork, getContract, logContract },
   } = hre;
 
-  const example: Example = await getBridgedContract('Example');
+  logNetwork();
 
-  const { address } = example;
+  const example: Example = await getContract('Example');
 
-  console.clear();
-  console.log('Network', kleur.green(`${networkName} #${chainId}`));
-  console.log('Contract', kleur.yellow(address));
+  logContract(example);
 
   for (;;) {
     console.log();
@@ -50,9 +43,6 @@ runScript(async (hre) => {
 
     await wait();
 
-    console.log();
-    console.log(
-      `${kleur.blue('→')} Transaction sent (hash: ${kleur.dim(hash)})`,
-    );
+    logTransaction(hash);
   }
 });

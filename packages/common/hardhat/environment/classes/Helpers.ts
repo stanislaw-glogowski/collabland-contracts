@@ -1,6 +1,7 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ContractTransaction, ContractReceipt, Contract } from 'ethers';
+import kleur from 'kleur';
 import { bindObjectMethods, ProcessEnvNames } from '../../shared';
 
 export class Helpers {
@@ -11,8 +12,47 @@ export class Helpers {
     bindObjectMethods(this);
   }
 
-  async getBridgedContract<T extends Contract>(namePrefix: string): Promise<T> {
-    let result: T = null;
+  async getContract<T extends Contract = Contract>(
+    name: string,
+  ): Promise<T & { name?: string }> {
+    let result = await this.getDeployedContract<T>(name);
+
+    if (!result) {
+      result = await this.getBridgedContract<T>(name);
+    }
+
+    if (!result) {
+      throw new Error(`Contract ${name} not found`);
+    }
+
+    return result;
+  }
+
+  async getDeployedContract<T extends Contract = Contract>(
+    name: string,
+  ): Promise<T & { name?: string }> {
+    let result: T & { name?: string } = null;
+
+    try {
+      const {
+        deployments: { get },
+        ethers: { provider },
+      } = this.hre;
+      const { address, abi } = await get(name);
+
+      result = new Contract(address, abi, provider) as any;
+      result.name = name;
+    } catch (err) {
+      //
+    }
+
+    return result;
+  }
+
+  async getBridgedContract<T extends Contract = Contract>(
+    namePrefix: string,
+  ): Promise<T & { name?: string }> {
+    let result: T & { name?: string } = null;
 
     const {
       deployments: { get },
@@ -30,13 +70,10 @@ export class Helpers {
         const { address } = await get(name);
 
         result = (await Factory.attach(address)) as any;
+        result.name = name;
       } catch (err) {
         //
       }
-    }
-
-    if (!result) {
-      throw new Error(`Bridged contract ${namePrefix}(L1,L2) not found`);
     }
 
     return result;
@@ -180,5 +217,34 @@ export class Helpers {
     const { utils } = this.hre.ethers;
 
     return utils.hexlify(utils.randomBytes(32));
+  }
+
+  logNetwork(clear = true): void {
+    const {
+      network: {
+        name,
+        config: { chainId },
+      },
+    } = this.hre;
+
+    if (clear) {
+      console.clear();
+    }
+
+    console.log('Network ', kleur.green(`${name} #${chainId}`));
+    console.log();
+  }
+
+  logContract(contract: Contract & { name?: string }): void {
+    const { name, address } = contract;
+    console.log('Contract', kleur.yellow(name));
+    console.log('        ', kleur.bgYellow(address));
+  }
+
+  logTransaction(hash: string): void {
+    console.log();
+    console.log(
+      `${kleur.blue('→')} Transaction sent (hash: ${kleur.dim(hash)})`,
+    );
   }
 }

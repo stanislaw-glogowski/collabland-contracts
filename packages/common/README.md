@@ -64,6 +64,7 @@ abstract contract GatewayContext is Context {
 
 ```bash
 $ cd ./packages/common
+
 $ npm run compile     # compiles all contracts
 $ npm run coverage    # runs coverage tests
 $ npm run test        # runs unit tests

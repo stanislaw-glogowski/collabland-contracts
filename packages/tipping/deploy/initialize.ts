@@ -5,7 +5,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {
     deployments: { execute, read, log, get },
     helpers: { getAccounts },
-    processNetworkEnvs: { getEnvAsAddressArray, getEnvAsAmount },
+    processNetworkEnvs: {
+      getEnvAsNumber,
+      getEnvAsAddress,
+      getEnvAsAddressArray,
+      getEnvAsAmount,
+    },
     optimism: {
       contracts: { l1, l2 },
     },
@@ -42,6 +47,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     if (await read('GnosisSafeRegistryL1', 'initialized')) {
       log('GnosisSafeRegistryL1 already initialized');
     } else {
+      const DEFAULT_WALLET_THRESHOLD = getEnvAsNumber(
+        'GnosisSafeRegistry.DEFAULT_WALLET_THRESHOLD',
+        0,
+      );
+
       await execute(
         'GnosisSafeRegistryL1',
         {
@@ -50,6 +60,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         },
         'initialize',
         l1.crossDomainMessenger,
+        DEFAULT_WALLET_THRESHOLD,
       );
     }
   }
@@ -85,6 +96,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     if (await read('GnosisSafeRegistryL2', 'initialized')) {
       log('GnosisSafeRegistryL2 already initialized');
     } else {
+      const { address: tippingToken } = await get('TippingTokenL2');
+
+      const WALLET_DEPLOYMENT_PAYMENT_TOKEN = getEnvAsAddress(
+        'GnosisSafeRegistry.CONTROLLERS',
+        tippingToken,
+      );
+      const WALLET_DEPLOYMENT_COST = getEnvAsAmount(
+        'GnosisSafeRegistry.WALLET_DEPLOYMENT_COST',
+        '100', // 100 * 10 ** 18
+      );
+
       await execute(
         'GnosisSafeRegistryL2',
         {
@@ -94,6 +116,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         'initialize',
         l2.crossDomainMessenger,
         gateway,
+        WALLET_DEPLOYMENT_PAYMENT_TOKEN,
+        WALLET_DEPLOYMENT_COST,
       );
     }
 

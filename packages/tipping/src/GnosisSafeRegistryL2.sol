@@ -2,12 +2,15 @@
 
 pragma solidity ^0.8.0;
 
+import "@abridged/collabland-common-contracts/src/access/Ownable.sol";
+import "@abridged/collabland-common-contracts/src/tokens/IERC20.sol";
 import "./GnosisSafeRegistry.sol";
 import "./GnosisSafeRegistryL1.sol";
 import "./GatewayContext.sol";
 import "./IWalletRegistry.sol";
 
 contract GnosisSafeRegistryL2 is
+  Ownable,
   GnosisSafeRegistry,
   GatewayContext,
   IWalletRegistry
@@ -24,6 +27,8 @@ contract GnosisSafeRegistryL2 is
     mapping(address => uint256) ownerIndex;
   }
 
+  IERC20 private _walletDeploymentPaymentToken;
+  uint256 private _walletDeploymentCost;
   mapping(address => Wallet) private _wallets;
 
   // errors
@@ -33,10 +38,17 @@ contract GnosisSafeRegistryL2 is
   error WalletOwnerDoesntExist();
   error WalletOwnerIsTheZeroAddress();
   error InvalidWalletSalt();
+  error InvalidWalletDeploymentPaymentToken();
+  error InvalidWalletDeploymentCost();
 
   // events
 
-  event Initialized(address crossDomainMessenger, address gateway);
+  event Initialized(
+    address crossDomainMessenger,
+    address gateway,
+    address walletDeploymentPaymentToken,
+    uint256 walletDeploymentCost
+  );
 
   event WalletOwnerAdded(address wallet, address owner);
 
@@ -51,21 +63,39 @@ contract GnosisSafeRegistryL2 is
 
   // constructor
 
-  constructor() GnosisSafeRegistry() {
+  constructor() Ownable() GnosisSafeRegistry() {
     //
   }
 
   // initialize
 
-  function initialize(address crossDomainMessenger, address gateway)
-    external
-    initializer
-  {
+  function initialize(
+    address crossDomainMessenger,
+    address gateway,
+    address walletDeploymentPaymentToken,
+    uint256 walletDeploymentCost
+  ) external initializer {
     _setCrossDomainMessenger(crossDomainMessenger);
 
     _setGateway(gateway);
 
-    emit Initialized(crossDomainMessenger, gateway);
+    if (walletDeploymentPaymentToken == address(0)) {
+      revert InvalidWalletDeploymentPaymentToken();
+    }
+
+    if (walletDeploymentCost == 0) {
+      revert InvalidWalletDeploymentCost();
+    }
+
+    _walletDeploymentPaymentToken = IERC20(walletDeploymentPaymentToken);
+    _walletDeploymentCost = walletDeploymentCost;
+
+    emit Initialized(
+      crossDomainMessenger,
+      gateway,
+      walletDeploymentPaymentToken,
+      walletDeploymentCost
+    );
   }
 
   // external functions (views)
@@ -172,6 +202,12 @@ contract GnosisSafeRegistryL2 is
     if (wallet != _computeWalletAddress(salt)) {
       revert InvalidWalletSalt();
     }
+
+    _walletDeploymentPaymentToken.transferFrom(
+      wallet,
+      _owner,
+      _walletDeploymentCost
+    );
 
     uint256 ownersLen = owners.length;
     address[] memory walletOwners = _wallets[wallet].owners;

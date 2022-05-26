@@ -52,4 +52,5 @@ $ npm run test        # runs unit tests
 [MIT][license-url]
 
 [license-image]: https://img.shields.io/badge/License-MIT-yellow.svg
-[license-url]: https://github.com/abridged/collabland-contracts/blob/master/LICENSE
+[license-url]: https://github.com/abridged/collabland-contracts/blob/master/packages/common/LICENSE
+

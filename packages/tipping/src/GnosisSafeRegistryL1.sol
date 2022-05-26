@@ -6,11 +6,15 @@ import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
 import "./GnosisSafeRegistry.sol";
 
 contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
+  uint256 private _defaultWalletThreshold;
   mapping(address => bool) private _deployedWallets;
 
   // events
 
-  event Initialized(address crossDomainMessenger);
+  event Initialized(
+    address crossDomainMessenger,
+    uint256 defaultWalletThreshold
+  );
 
   event WalletDeployed(
     uint256 messageId,
@@ -27,10 +31,15 @@ contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
 
   // initialize
 
-  function initialize(address crossDomainMessenger) external initializer {
+  function initialize(
+    address crossDomainMessenger,
+    uint256 defaultWalletThreshold
+  ) external initializer {
     _setCrossDomainMessenger(crossDomainMessenger);
 
-    emit Initialized(crossDomainMessenger);
+    _defaultWalletThreshold = defaultWalletThreshold;
+
+    emit Initialized(crossDomainMessenger, defaultWalletThreshold);
   }
 
   // external functions (views)
@@ -48,8 +57,19 @@ contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
   ) external onlyCrossDomainSelfCall {
     _addIncomingMessageId(messageId);
 
-    address wallet;
+    GnosisSafeL2 wallet = new GnosisSafeL2{salt: salt}();
 
-    emit WalletDeployed(messageId, wallet, salt, owners);
+    wallet.setup(
+      owners,
+      _defaultWalletThreshold,
+      address(0), // to
+      new bytes(0), // data
+      address(0), // fallbackHandler
+      address(0), // paymentToken
+      0, // payment
+      payable(address(0)) // paymentReceiver
+    );
+
+    emit WalletDeployed(messageId, address(wallet), salt, owners);
   }
 }

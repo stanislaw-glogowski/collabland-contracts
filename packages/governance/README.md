@@ -42,4 +42,4 @@ $ npm run watch-events:<network-alias>  # watches for events on <network-alias> 
 [MIT][license-url]
 
 [license-image]: https://img.shields.io/badge/License-MIT-yellow.svg
-[license-url]: https://github.com/abridged/collabland-contracts/blob/master/LICENSE
+[license-url]: https://github.com/abridged/collabland-contracts/blob/master/packages/governance/LICENSE

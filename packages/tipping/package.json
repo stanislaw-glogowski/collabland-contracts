@@ -17,6 +17,8 @@
     "deploy:gnosis": "hardhat deploy --network gnosis",
     "deploy:gnosis-optimism": "hardhat deploy --network gnosis-optimism",
     "test": "hardhat test",
+    "demo:local": "hardhat run scripts/demo.ts --network local",
+    "demo:local-optimism": "hardhat run scripts/demo.ts --network local-optimism",
     "watch-events:TippingToken:local": "hardhat watch-events --contract TippingToken --network local",
     "watch-events:TippingToken:local-optimism": "hardhat watch-events --contract TippingToken --network local-optimism",
     "watch-events:GnosisSafeRegistry:local": "hardhat watch-events --contract GnosisSafeRegistry --network local",

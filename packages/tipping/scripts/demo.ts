@@ -2,10 +2,10 @@ import { runScript } from '@abridged/collabland-common-contracts/scripts';
 import { HARDHAT_MNEMONIC } from '@abridged/collabland-common-contracts/hardhat/shared/constants';
 import { BigNumber } from 'ethers';
 import prompts from 'prompts';
-import { GovernanceTokenL1, GovernanceTokenL2 } from '../typechain';
+import { TippingTokenL1, TippingTokenL2 } from '../typechain';
 
 const SIGNERS_MNEMONIC =
-  'pledge pumpkin subway run cycle mad sudden crush hundred delay pencil excite';
+  'grit bar dust alone enlist armor hour year stamp unveil approve shoot';
 
 const DEFAULT_GAS_LIMIT = 200000;
 
@@ -32,19 +32,19 @@ runScript(async (hre) => {
   const hardhatSigner = createSigner(HARDHAT_MNEMONIC);
   const signers = createSigners(SIGNERS_MNEMONIC);
 
-  let tokenL1: GovernanceTokenL1;
-  let tokenL2: GovernanceTokenL2;
+  let tokenL1: TippingTokenL1;
+  let tokenL2: TippingTokenL2;
 
   logNetwork();
 
   if (l1) {
-    tokenL1 = await getContract('GovernanceTokenL1');
+    tokenL1 = await getContract('TippingTokenL1');
 
     logContract(tokenL1);
   }
 
   if (l2) {
-    tokenL2 = await getContract('GovernanceTokenL2');
+    tokenL2 = await getContract('TippingTokenL2');
 
     logContract(tokenL2);
   }

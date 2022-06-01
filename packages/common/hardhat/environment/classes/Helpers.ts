@@ -215,8 +215,19 @@ export class Helpers {
     return this.signers;
   }
 
-  async processDeployment<T extends Contract>(p: Promise<T>): Promise<T> {
-    return (await (await p).deployed()) as T;
+  async deployContract<T extends Contract>(
+    name: string,
+    ...args: any[]
+  ): Promise<T> {
+    const { getContractFactory } = this.hre.ethers;
+
+    const contractFactory = await getContractFactory(name);
+
+    const result = await contractFactory.deploy(...args);
+
+    await result.deployed();
+
+    return result as T;
   }
 
   async processTransaction(p: Promise<ContractTransaction>): Promise<{

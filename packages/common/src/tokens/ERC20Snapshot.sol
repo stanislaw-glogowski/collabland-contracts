@@ -37,13 +37,6 @@ abstract contract ERC20Snapshot is ERC20 {
     return _computeSnapshotId(timestamp);
   }
 
-  function balanceOf(address account) external view returns (uint256) {
-    uint256 now_ = block.timestamp; // solhint-disable-line not-rely-on-time
-    uint256 snapshotId = _computeSnapshotId(now_);
-
-    return _balanceOfAt(account, snapshotId);
-  }
-
   function balanceOfAt(address account, uint256 snapshotId)
     external
     view
@@ -59,7 +52,7 @@ abstract contract ERC20Snapshot is ERC20 {
     view
     returns (uint256 result)
   {
-    if (_snapshotBaseTimestamp <= timestamp) {
+    if (_snapshotWindowLength != 0 && _snapshotBaseTimestamp <= timestamp) {
       unchecked {
         result =
           ((timestamp - _snapshotBaseTimestamp) / _snapshotWindowLength) +
@@ -68,6 +61,19 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     return result;
+  }
+
+  function _balanceOf(address account)
+    internal
+    view
+    virtual
+    override
+    returns (uint256)
+  {
+    uint256 now_ = block.timestamp; // solhint-disable-line not-rely-on-time
+    uint256 snapshotId = _computeSnapshotId(now_);
+
+    return _balanceOfAt(account, snapshotId);
   }
 
   function _balanceOfAt(address account, uint256 snapshotId)
@@ -115,7 +121,7 @@ abstract contract ERC20Snapshot is ERC20 {
 
     toBalance += amount;
 
-    _setBalanceSnapshot(to, toBalance, snapshotId);
+    _setBalanceAt(to, toBalance, snapshotId);
   }
 
   function _burnHandler(address from, uint256 amount)
@@ -126,15 +132,11 @@ abstract contract ERC20Snapshot is ERC20 {
     uint256 snapshotId = _computeSnapshotId(block.timestamp); // solhint-disable-line not-rely-on-time
     uint256 fromBalance = _balanceOfAt(from, snapshotId);
 
-    if (fromBalance < amount) {
-      revert AmountExceedsBalance();
-    }
-
     unchecked {
       fromBalance -= amount;
     }
 
-    _setBalanceSnapshot(from, fromBalance, snapshotId);
+    _setBalanceAt(from, fromBalance, snapshotId);
   }
 
   function _transferHandler(
@@ -146,23 +148,19 @@ abstract contract ERC20Snapshot is ERC20 {
     uint256 fromBalance = _balanceOfAt(from, snapshotId);
     uint256 toBalance = _balanceOfAt(to, snapshotId);
 
-    if (fromBalance < amount) {
-      revert AmountExceedsBalance();
-    }
-
     unchecked {
       fromBalance -= amount;
     }
 
     toBalance += amount;
 
-    _setBalanceSnapshot(from, fromBalance, snapshotId);
-    _setBalanceSnapshot(to, toBalance, snapshotId);
+    _setBalanceAt(from, fromBalance, snapshotId);
+    _setBalanceAt(to, toBalance, snapshotId);
   }
 
   // private functions
 
-  function _setBalanceSnapshot(
+  function _setBalanceAt(
     address account,
     uint256 balance_,
     uint256 snapshotId

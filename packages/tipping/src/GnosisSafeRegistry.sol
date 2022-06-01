@@ -3,10 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
-import "@abridged/collabland-common-contracts/src/optimism/Bridged.sol";
+import "@abridged/collabland-common-contracts/src/optimism/CrossDomainSelfBridged.sol";
 import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
 
-abstract contract GnosisSafeRegistry is Bridged, Initializable {
+abstract contract GnosisSafeRegistry is CrossDomainSelfBridged, Initializable {
   bytes32 private _walletCreationCodeHash;
 
   // constructor

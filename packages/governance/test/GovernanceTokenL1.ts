@@ -5,13 +5,12 @@ import { GovernanceTokenL1, CrossDomainMessengerMock } from '../typechain';
 import { ResponseStatuses } from './constants';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
 } = ethers;
 
 const {
   getSigners,
-  processDeployment,
+  deployContract,
   processTransaction,
   randomAddress,
   randomHex32,
@@ -30,20 +29,12 @@ describe('GovernanceTokenL1', () => {
   before(async () => {
     [deployer, account] = await getSigners();
 
-    const GovernanceTokenMockFactory = await getContractFactory(
-      'GovernanceTokenL1',
-    );
+    governanceToken = await deployContract('GovernanceTokenL1');
 
-    governanceToken = await processDeployment(
-      GovernanceTokenMockFactory.deploy(),
-    );
+    crossDomainMessenger = await deployContract('CrossDomainMessengerMock');
 
-    const CrossDomainMessengerFactory = await getContractFactory(
-      'CrossDomainMessengerMock',
-    );
-
-    crossDomainMessenger = await processDeployment(
-      CrossDomainMessengerFactory.deploy(governanceToken.address),
+    await processTransaction(
+      crossDomainMessenger.setXDomainMessageSender(governanceToken.address),
     );
   });
 
@@ -126,7 +117,6 @@ describe('GovernanceTokenL1', () => {
 
   describe('# external functions (views)', () => {
     const data = {
-      messageId: 1,
       snapshotId: 2,
       proposalId: 1,
     };
@@ -139,7 +129,7 @@ describe('GovernanceTokenL1', () => {
           governanceToken.address,
           governanceToken.interface.encodeFunctionData(
             'processProposalHandler',
-            [data.messageId, data.proposalId, [randomAddress()], [0], [[]]],
+            [data.proposalId, [randomAddress()], [0], [[]]],
           ),
         ),
       );
@@ -204,7 +194,6 @@ describe('GovernanceTokenL1', () => {
 
     describe('processProposalHandler()', () => {
       const data = {
-        messageId: 1,
         proposalId: 1,
         callTo: [randomAddress()],
         callValue: [10],
@@ -216,7 +205,6 @@ describe('GovernanceTokenL1', () => {
       it('expect to revert when msg sender and contract addresses are not the same', async () => {
         await expect(
           governanceToken.processProposalHandler(
-            3,
             4,
             [randomAddress()],
             [0],
@@ -231,7 +219,7 @@ describe('GovernanceTokenL1', () => {
             governanceToken.address,
             governanceToken.interface.encodeFunctionData(
               'processProposalHandler',
-              [7, 8, data.callTo, data.callValue, data.callData],
+              [8, data.callTo, data.callValue, data.callData],
             ),
           ),
         );

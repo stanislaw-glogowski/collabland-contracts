@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "@abridged/collabland-common-contracts/src/optimism/Bridged.sol";
+import "@abridged/collabland-common-contracts/src/optimism/CrossDomainSelfBridged.sol";
 import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
 
-abstract contract Example is Bridged, Initializable {
+abstract contract Example is CrossDomainSelfBridged, Initializable {
   string private _message;
 
   // events
@@ -36,31 +36,19 @@ abstract contract Example is Bridged, Initializable {
 
   // external functions
 
-  function sendMessage(string calldata message, uint32 gasLimit) external {
-    _sendMessage(
-      address(this),
-      abi.encodeWithSelector(Example.setMessage.selector, message),
-      gasLimit
-    );
+  function sendMessage(string calldata message, uint32 gasLimit)
+    external
+    virtual;
 
-    _sendMessageHandler(message, gasLimit);
-  }
+  function updateMessage(string calldata message) external virtual;
 
-  function setMessage(string calldata message) external {
+  // internal functions
+
+  function _updateMessage(string memory message) internal {
     string memory oldMessage = _message;
 
     _message = message;
 
-    _setMessageHandler(message);
-
     emit MessageUpdated(oldMessage, message);
   }
-
-  // internal functions
-
-  function _sendMessageHandler(string memory message, uint32 gasLimit)
-    internal
-    virtual;
-
-  function _setMessageHandler(string memory message) internal virtual;
 }

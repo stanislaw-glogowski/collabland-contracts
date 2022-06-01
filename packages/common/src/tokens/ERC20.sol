@@ -20,9 +20,9 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
   error AmountExceedsBalance();
   error InsufficientAllowance();
   error MintToTheZeroAddress();
-  error BurnFromTheZeroAddress();
   error SpenderIsTheZeroAddress();
   error TransferToTheZeroAddress();
+  error AmountIsZero();
 
   // constructor
 
@@ -59,6 +59,10 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     return _allowances[owner][spender];
   }
 
+  function balanceOf(address account) external view returns (uint256) {
+    return _balanceOf(account);
+  }
+
   // external functions
 
   function approve(address spender, uint256 amount) external returns (bool) {
@@ -77,21 +81,6 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     return true;
   }
 
-  function transferMany(address[] calldata to, uint256[] calldata amount)
-    external
-  {
-    address sender = _msgSender();
-    uint256 len = to.length;
-
-    for (uint256 i; i < len; ) {
-      _transfer(sender, to[i], amount[i]);
-
-      unchecked {
-        ++i;
-      }
-    }
-  }
-
   function transferFrom(
     address from,
     address to,
@@ -104,30 +93,9 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     return true;
   }
 
-  function transferFromMany(
-    address[] calldata from,
-    address[] calldata to,
-    uint256[] calldata amount
-  ) external returns (bool) {
-    address sender = _msgSender();
-    uint256 len = to.length;
+  // internal functions (views)
 
-    for (uint256 i; i < len; ) {
-      address fromItem = from[i];
-      address toItem = to[i];
-      uint256 amountItem = amount[i];
-
-      _spendAllowance(fromItem, sender, amountItem);
-
-      _transfer(fromItem, toItem, amountItem);
-
-      unchecked {
-        ++i;
-      }
-    }
-
-    return true;
-  }
+  function _balanceOf(address account) internal view virtual returns (uint256);
 
   // internal functions
 
@@ -135,7 +103,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     address owner,
     address spender,
     uint256 amount
-  ) internal virtual {
+  ) internal {
     _allowances[owner][spender] = amount;
 
     emit Approval(owner, spender, amount);
@@ -145,7 +113,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     address owner,
     address spender,
     uint256 amount
-  ) internal virtual {
+  ) internal {
     uint256 currentAllowance = _allowances[owner][spender];
 
     if (currentAllowance != type(uint256).max) {
@@ -159,9 +127,13 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     }
   }
 
-  function _mint(address to, uint256 amount) internal virtual {
+  function _mint(address to, uint256 amount) internal {
     if (to == address(0)) {
       revert MintToTheZeroAddress();
+    }
+
+    if (amount == 0) {
+      revert AmountIsZero();
     }
 
     _mintHandler(to, amount);
@@ -171,9 +143,13 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     emit Transfer(address(0), to, amount);
   }
 
-  function _burn(address from, uint256 amount) internal virtual {
-    if (from == address(0)) {
-      revert BurnFromTheZeroAddress();
+  function _burn(address from, uint256 amount) internal {
+    if (amount == 0) {
+      revert AmountIsZero();
+    }
+
+    if (_balanceOf(from) < amount) {
+      revert AmountExceedsBalance();
     }
 
     _burnHandler(from, amount);
@@ -189,9 +165,17 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     address from,
     address to,
     uint256 amount
-  ) internal virtual {
+  ) internal {
     if (to == address(0)) {
       revert TransferToTheZeroAddress();
+    }
+
+    if (amount == 0) {
+      revert AmountIsZero();
+    }
+
+    if (_balanceOf(from) < amount) {
+      revert AmountExceedsBalance();
     }
 
     _transferHandler(from, to, amount);
@@ -199,13 +183,9 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
     emit Transfer(from, to, amount);
   }
 
-  function _mintHandler(address, uint256) internal virtual {
-    //
-  }
+  function _mintHandler(address to, uint256 amount) internal virtual;
 
-  function _burnHandler(address, uint256) internal virtual {
-    //
-  }
+  function _burnHandler(address from, uint256 amount) internal virtual;
 
   function _transferHandler(
     address from,

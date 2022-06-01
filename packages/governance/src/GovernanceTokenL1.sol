@@ -70,14 +70,11 @@ contract GovernanceTokenL1 is Ownable, GovernanceToken, ERC20Basic {
   }
 
   function processProposalHandler(
-    uint256 messageId,
     uint256 proposalId,
     address[] calldata callTo,
     uint256[] calldata callValue,
     bytes[] calldata callData
   ) external onlyCrossDomainSelfCall {
-    _addIncomingMessageId(messageId);
-
     uint256 len = callTo.length;
 
     ResponseStatuses[] memory responseStatuses = new ResponseStatuses[](len);

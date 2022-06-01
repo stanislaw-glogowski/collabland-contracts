@@ -15,9 +15,15 @@ abstract contract ERC20Basic is ERC20 {
     //
   }
 
-  // external functions (views)
+  // internal functions (views)
 
-  function balanceOf(address account) external view override returns (uint256) {
+  function _balanceOf(address account)
+    internal
+    view
+    virtual
+    override
+    returns (uint256)
+  {
     return _balances[account];
   }
 
@@ -27,8 +33,14 @@ abstract contract ERC20Basic is ERC20 {
     _balances[to] += amount;
   }
 
-  function _burnHandler(address from, uint256 amount) internal virtual override {
-    _balances[from] -= amount;
+  function _burnHandler(address from, uint256 amount)
+    internal
+    virtual
+    override
+  {
+    unchecked {
+      _balances[from] -= amount;
+    }
   }
 
   function _transferHandler(
@@ -36,10 +48,6 @@ abstract contract ERC20Basic is ERC20 {
     address to,
     uint256 amount
   ) internal virtual override {
-    if (_balances[from] < amount) {
-      revert AmountExceedsBalance();
-    }
-
     unchecked {
       _balances[from] -= amount;
     }

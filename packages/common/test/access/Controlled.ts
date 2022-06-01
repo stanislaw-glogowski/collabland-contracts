@@ -4,23 +4,37 @@ import { expect } from 'chai';
 import { ControlledMock } from '../../typechain';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
 } = ethers;
 
-const { processDeployment, processTransaction, getSigners, randomAddress } =
+const { deployContract, processTransaction, getSigners, randomAddress } =
   helpers;
 
 describe('Controlled (using mock)', () => {
-  let controlledMock: ControlledMock;
+  let controlled: ControlledMock;
   let account: SignerWithAddress;
+  let controller: SignerWithAddress;
 
   before(async () => {
-    [, account] = await getSigners();
+    [, account, controller] = await getSigners();
 
-    const ControlledMockFactory = await getContractFactory('ControlledMock');
+    controlled = await deployContract('ControlledMock');
 
-    controlledMock = await processDeployment(ControlledMockFactory.deploy());
+    await processTransaction(controlled.setControllers([controller.address]));
+  });
+
+  describe('# modifiers', () => {
+    describe('onlyOwner()', () => {
+      it('expect to revert when msg.sender is not the controller', async () => {
+        await expect(
+          controlled.connect(account).testOnlyController(),
+        ).revertedWith('MsgSenderIsNotTheController()');
+      });
+
+      it('expect to complete when msg.sender is the controller', async () => {
+        await controlled.connect(controller).testOnlyController();
+      });
+    });
   });
 
   describe('# external functions', () => {
@@ -31,36 +45,36 @@ describe('Controlled (using mock)', () => {
 
     before(async () => {
       await processTransaction(
-        controlledMock.addController(data.existingController),
+        controlled.addController(data.existingController),
       );
     });
 
     describe('addController()', () => {
       it('expect to revert when msg.sender is not the owner', async () => {
         await expect(
-          controlledMock.connect(account).addController(randomAddress()),
+          controlled.connect(account).addController(randomAddress()),
         ).revertedWith('MsgSenderIsNotTheOwner()');
       });
 
       it('expect to revert when controller is the zero address', async () => {
-        await expect(controlledMock.addController(AddressZero)).revertedWith(
+        await expect(controlled.addController(AddressZero)).revertedWith(
           'ControllerIsTheZeroAddress()',
         );
       });
 
       it('expect to revert when controller already exists', async () => {
         await expect(
-          controlledMock.addController(data.existingController),
+          controlled.addController(data.existingController),
         ).revertedWith('ControllerAlreadyExists()');
       });
 
       it('expect to add a new controller', async () => {
         const { tx } = await processTransaction(
-          controlledMock.addController(data.newController),
+          controlled.addController(data.newController),
         );
 
-        expect(tx)
-          .to.emit(controlledMock, 'ControllerAdded')
+        await expect(tx)
+          .to.emit(controlled, 'ControllerAdded')
           .withArgs(data.newController);
       });
     });
@@ -68,23 +82,23 @@ describe('Controlled (using mock)', () => {
     describe('removeController()', () => {
       it('expect to revert when msg.sender is not the owner', async () => {
         await expect(
-          controlledMock.connect(account).removeController(randomAddress()),
+          controlled.connect(account).removeController(randomAddress()),
         ).revertedWith('MsgSenderIsNotTheOwner()');
       });
 
       it("expect to revert when controller doesn't exist", async () => {
-        await expect(
-          controlledMock.removeController(randomAddress()),
-        ).revertedWith('ControllerDoesntExist()');
+        await expect(controlled.removeController(randomAddress())).revertedWith(
+          'ControllerDoesntExist()',
+        );
       });
 
       it('expect to add a new controller', async () => {
         const { tx } = await processTransaction(
-          controlledMock.removeController(data.existingController),
+          controlled.removeController(data.existingController),
         );
 
-        expect(tx)
-          .to.emit(controlledMock, 'ControllerRemoved')
+        await expect(tx)
+          .to.emit(controlled, 'ControllerRemoved')
           .withArgs(data.existingController);
       });
     });
@@ -93,9 +107,9 @@ describe('Controlled (using mock)', () => {
   describe('# internal functions', () => {
     describe('_setControllers()', () => {
       it('expect to omit zero address controllers', async () => {
-        await processTransaction(controlledMock.setControllers([AddressZero]));
+        await processTransaction(controlled.setControllers([AddressZero]));
 
-        expect(await controlledMock.hasController(AddressZero)).to.eq(false);
+        expect(await controlled.hasController(AddressZero)).to.eq(false);
       });
     });
   });

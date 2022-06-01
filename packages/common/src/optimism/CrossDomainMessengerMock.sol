@@ -7,10 +7,6 @@ import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 contract CrossDomainMessengerMock is ICrossDomainMessenger {
   address private _xDomainMessageSender;
 
-  constructor(address xDomainMessageSender_) {
-    _xDomainMessageSender = xDomainMessageSender_;
-  }
-
   // events
 
   event MessageSent(
@@ -20,7 +16,7 @@ contract CrossDomainMessengerMock is ICrossDomainMessenger {
     uint256 gasLimit
   );
 
-  event TargetCalled(address target, bytes data, bool success, bytes response);
+  event TargetCalled(bool success);
 
   // external functions (views)
 
@@ -44,8 +40,8 @@ contract CrossDomainMessengerMock is ICrossDomainMessenger {
 
   function callTarget(address target, bytes calldata data) external {
     // solhint-disable-next-line avoid-low-level-calls
-    (bool success, bytes memory response) = target.call(data);
+    (bool success, ) = target.call(data);
 
-    emit TargetCalled(target, data, success, response);
+    emit TargetCalled(success);
   }
 }

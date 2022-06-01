@@ -4,30 +4,41 @@ import { expect } from 'chai';
 import { OwnableMock } from '../../typechain';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
 } = ethers;
 
-const { processDeployment, processTransaction, getSigners, randomAddress } =
+const { deployContract, processTransaction, getSigners, randomAddress } =
   helpers;
 
 describe('Ownable (using mock)', () => {
-  let ownableMock: OwnableMock;
+  let ownable: OwnableMock;
   let deployer: SignerWithAddress;
   let account: SignerWithAddress;
 
   before(async () => {
     [deployer, account] = await getSigners();
 
-    const OwnableMockFactory = await getContractFactory('OwnableMock');
+    ownable = await deployContract('OwnableMock');
+  });
 
-    ownableMock = await processDeployment(OwnableMockFactory.deploy());
+  describe('# modifiers', () => {
+    describe('onlyOwner()', () => {
+      it('expect to revert when msg.sender is not the owner', async () => {
+        await expect(ownable.connect(account).testOnlyOwner()).revertedWith(
+          'MsgSenderIsNotTheOwner()',
+        );
+      });
+
+      it('expect to complete when msg.sender is the owner', async () => {
+        await ownable.testOnlyOwner();
+      });
+    });
   });
 
   describe('# external functions (views)', () => {
     describe('getOwner()', () => {
       it('expect to return correct balance', async () => {
-        expect(await ownableMock.getOwner()).to.eq(deployer.address);
+        expect(await ownable.getOwner()).to.eq(deployer.address);
       });
     });
   });
@@ -36,12 +47,12 @@ describe('Ownable (using mock)', () => {
     describe('setOwner()', () => {
       it('expect to revert when msg.sender is not the owner', async () => {
         await expect(
-          ownableMock.connect(account).setOwner(randomAddress()),
+          ownable.connect(account).setOwner(randomAddress()),
         ).revertedWith('MsgSenderIsNotTheOwner()');
       });
 
       it('expect to revert when owner is the zero address', async () => {
-        await expect(ownableMock.setOwner(AddressZero)).revertedWith(
+        await expect(ownable.setOwner(AddressZero)).revertedWith(
           'OwnerIsTheZeroAddress()',
         );
       });
@@ -49,9 +60,9 @@ describe('Ownable (using mock)', () => {
       it('expect to set a new owner', async () => {
         const owner = randomAddress();
 
-        const { tx } = await processTransaction(ownableMock.setOwner(owner));
+        const { tx } = await processTransaction(ownable.setOwner(owner));
 
-        expect(tx).to.emit(ownableMock, 'OwnerUpdated').withArgs(owner);
+        await expect(tx).to.emit(ownable, 'OwnerUpdated').withArgs(owner);
       });
     });
   });

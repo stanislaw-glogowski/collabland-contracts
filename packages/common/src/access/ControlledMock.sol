@@ -5,6 +5,10 @@ pragma solidity ^0.8.0;
 import "./Controlled.sol";
 
 contract ControlledMock is Controlled {
+  // events
+
+  event Tested();
+
   // constructor
 
   constructor() Controlled() {
@@ -21,5 +25,9 @@ contract ControlledMock is Controlled {
 
   function setControllers(address[] calldata controllers) external {
     _setControllers(controllers);
+  }
+
+  function testOnlyController() external onlyController {
+    emit Tested();
   }
 }

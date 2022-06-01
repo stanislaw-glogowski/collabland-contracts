@@ -4,13 +4,12 @@ import { expect } from 'chai';
 import { TippingTokenL2 } from '../typechain';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
 } = ethers;
 
 const {
   getSigners,
-  processDeployment,
+  deployContract,
   processTransaction,
   resetSnapshots,
   revertSnapshot,
@@ -26,9 +25,7 @@ describe('TippingTokenL2', () => {
   before(async () => {
     [, controller] = await getSigners();
 
-    const TippingTokenFactory = await getContractFactory('TippingTokenL2');
-
-    tippingToken = await processDeployment(TippingTokenFactory.deploy());
+    tippingToken = await deployContract('TippingTokenL2');
   });
 
   const createBeforeHook = (

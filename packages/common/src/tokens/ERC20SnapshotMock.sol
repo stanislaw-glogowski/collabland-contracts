@@ -7,9 +7,7 @@ import "./ERC20Snapshot.sol";
 contract ERC20SnapshotMock is ERC20Snapshot {
   // constructor
 
-  constructor(uint256 totalSupply_)
-    ERC20Snapshot("ERC20 Snapshot Mock", "ESM")
-  {
+  constructor(uint256 totalSupply_) ERC20Snapshot("", "") {
     _mint(msg.sender, totalSupply_);
   }
 

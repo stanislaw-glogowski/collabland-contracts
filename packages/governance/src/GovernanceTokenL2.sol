@@ -58,7 +58,7 @@ contract GovernanceTokenL2 is Controlled, GovernanceToken, ERC20Snapshot {
     uint256 votingEndsAt
   );
 
-  event ProposalProcessed(uint256 proposalId, uint256 messageId);
+  event ProposalProcessed(uint256 proposalId);
 
   event ProposalRejected(uint256 proposalId);
 
@@ -229,13 +229,9 @@ contract GovernanceTokenL2 is Controlled, GovernanceToken, ERC20Snapshot {
     }
 
     if (proposal.votesYesWeight > proposal.votesNoWeight) {
-      uint256 messageId = _incOutgoingMessageCounter();
-
-      _sendMessage(
-        address(this),
+      _sendCrossDomainMessage(
         abi.encodeWithSelector(
           GovernanceTokenL1.processProposalHandler.selector,
-          messageId,
           proposalId,
           proposal.callTo,
           proposal.callValue,
@@ -246,7 +242,7 @@ contract GovernanceTokenL2 is Controlled, GovernanceToken, ERC20Snapshot {
 
       proposal.status = ProposalStatuses.Processed;
 
-      emit ProposalProcessed(proposalId, messageId);
+      emit ProposalProcessed(proposalId);
     } else {
       proposal.status = ProposalStatuses.Rejected;
 

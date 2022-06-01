@@ -10,7 +10,6 @@ contract ExampleL1 is Example {
   event MessageSentToL2(
     address msgSender,
     address txOrigin,
-    address xDomainMessageSender,
     string message,
     uint32 gasLimit
   );
@@ -18,7 +17,6 @@ contract ExampleL1 is Example {
   event MessageReceivedFromL2(
     address msgSender,
     address txOrigin,
-    address xDomainMessageSender,
     string message
   );
 
@@ -28,27 +26,27 @@ contract ExampleL1 is Example {
     //
   }
 
-  // internal functions
+  // external functions
 
-  function _sendMessageHandler(string memory message, uint32 gasLimit)
-    internal
+  function sendMessage(string calldata message, uint32 gasLimit)
+    external
     override
   {
-    emit MessageSentToL2(
-      msg.sender,
-      tx.origin,
-      _xDomainMessageSender(),
-      message,
+    _sendCrossDomainMessage(
+      abi.encodeWithSelector(Example.updateMessage.selector, message),
       gasLimit
     );
+
+    emit MessageSentToL2(msg.sender, tx.origin, message, gasLimit);
   }
 
-  function _setMessageHandler(string memory message) internal override {
-    emit MessageReceivedFromL2(
-      msg.sender,
-      tx.origin,
-      _xDomainMessageSender(),
-      message
-    );
+  function updateMessage(string calldata message)
+    external
+    override
+    onlyCrossDomainSelfCall
+  {
+    emit MessageReceivedFromL2(msg.sender, tx.origin, message);
+
+    _updateMessage(message);
   }
 }

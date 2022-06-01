@@ -9,14 +9,13 @@ import {
 } from '../typechain';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
   utils: { getCreate2Address, keccak256 },
 } = ethers;
 
 const {
   getSigners,
-  processDeployment,
+  deployContract,
   processTransaction,
   resetSnapshots,
   revertSnapshot,
@@ -36,21 +35,14 @@ describe('Gateway', () => {
   before(async () => {
     [, controller, account, ...signers] = await getSigners();
 
-    const GatewayFactory = await getContractFactory('Gateway');
+    gateway = await deployContract('Gateway');
 
-    const GatewayContextMockFactory = await getContractFactory(
+    gatewayContext = await deployContract(
       'GatewayContextMock',
+      gateway.address,
     );
 
-    const WalletRegistryFactory = await getContractFactory('WalletRegistry');
-
-    gateway = await processDeployment(GatewayFactory.deploy());
-
-    gatewayContext = await processDeployment(
-      GatewayContextMockFactory.deploy(gateway.address),
-    );
-
-    walletRegistry = await processDeployment(WalletRegistryFactory.deploy());
+    walletRegistry = await deployContract('WalletRegistry');
 
     walletAddress = getCreate2Address(
       walletRegistry.address,

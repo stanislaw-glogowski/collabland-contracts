@@ -16,12 +16,7 @@ contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
     uint256 defaultWalletThreshold
   );
 
-  event WalletDeployed(
-    uint256 messageId,
-    address wallet,
-    bytes32 salt,
-    address[] owners
-  );
+  event WalletDeployed(address wallet, bytes32 salt, address[] owners);
 
   // constructor
 
@@ -50,13 +45,10 @@ contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
 
   // external functions
 
-  function deployWalletHandler(
-    uint256 messageId,
-    bytes32 salt,
-    address[] calldata owners
-  ) external onlyCrossDomainSelfCall {
-    _addIncomingMessageId(messageId);
-
+  function deployWalletHandler(bytes32 salt, address[] calldata owners)
+    external
+    onlyCrossDomainSelfCall
+  {
     GnosisSafeL2 wallet = new GnosisSafeL2{salt: salt}();
 
     wallet.setup(
@@ -70,6 +62,6 @@ contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
       payable(address(0)) // paymentReceiver
     );
 
-    emit WalletDeployed(messageId, address(wallet), salt, owners);
+    emit WalletDeployed(address(wallet), salt, owners);
   }
 }

@@ -4,23 +4,31 @@ pragma solidity ^0.8.0;
 
 import "./ERC20.sol";
 import "./ERC20Basic.sol";
-import "./ERC20Bridged.sol";
+import "./ERC20CrossDomainSelfBridged.sol";
 
-contract ERC20BridgedMock is ERC20Basic, ERC20Bridged {
+contract ERC20CrossDomainSelfBridgedMock is
+  ERC20Basic,
+  ERC20CrossDomainSelfBridged
+{
   // constructor
 
-  constructor(uint256 totalSupply_) ERC20Basic("ERC20 Basic Mock", "EBM") {
+  constructor(address _crossDomainMessenger, uint256 totalSupply_)
+    ERC20Basic("", "")
+  {
+    _setCrossDomainMessenger(_crossDomainMessenger);
+
     _mint(msg.sender, totalSupply_);
   }
 
-  // external functions
+  // internal functions (views)
 
-  function mint(address to, uint256 amount) external {
-    _mint(to, amount);
-  }
-
-  function burn(address from, uint256 amount) external {
-    _burn(from, amount);
+  function _balanceOf(address account)
+    internal
+    view
+    override(ERC20Basic, ERC20)
+    returns (uint256)
+  {
+    return ERC20Basic._balanceOf(account);
   }
 
   // internal functions

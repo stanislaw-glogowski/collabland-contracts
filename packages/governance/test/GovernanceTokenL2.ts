@@ -5,13 +5,12 @@ import { GovernanceTokenL2, CrossDomainMessengerMock } from '../typechain';
 import { ProposalStatuses, VoteTypes } from './constants';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
 } = ethers;
 
 const {
   getSigners,
-  processDeployment,
+  deployContract,
   processTransaction,
   randomAddress,
   randomHex32,
@@ -38,18 +37,12 @@ describe('GovernanceTokenL2', () => {
 
     [deployer, controller, voterA, voterB] = await getSigners();
 
-    const GovernanceTokenFactory = await getContractFactory(
-      'GovernanceTokenL2',
-    );
+    governanceToken = await deployContract('GovernanceTokenL2');
 
-    governanceToken = await processDeployment(GovernanceTokenFactory.deploy());
+    crossDomainMessenger = await deployContract('CrossDomainMessengerMock');
 
-    const CrossDomainMessengerFactory = await getContractFactory(
-      'CrossDomainMessengerMock',
-    );
-
-    crossDomainMessenger = await processDeployment(
-      CrossDomainMessengerFactory.deploy(governanceToken.address),
+    await processTransaction(
+      crossDomainMessenger.setXDomainMessageSender(governanceToken.address),
     );
   });
 

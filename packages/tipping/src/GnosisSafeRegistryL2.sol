@@ -227,13 +227,9 @@ contract GnosisSafeRegistryL2 is
       }
     }
 
-    uint256 messageId = _incOutgoingMessageCounter();
-
-    _sendMessage(
-      address(this),
+    _sendCrossDomainMessage(
       abi.encodeWithSelector(
         GnosisSafeRegistryL1.deployWalletHandler.selector,
-        messageId,
         salt,
         ownersLen == 0 ? walletOwners : owners
       ),

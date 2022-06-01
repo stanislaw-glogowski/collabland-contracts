@@ -1,39 +1,41 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { ethers, helpers } from 'hardhat';
+import { helpers } from 'hardhat';
 import { expect } from 'chai';
 import { InitializableMock } from '../../typechain';
 
-const { getContractFactory } = ethers;
-
-const { getSigners, processDeployment, processTransaction } = helpers;
+const { getSigners, deployContract, processTransaction } = helpers;
 
 describe('Initializable (using mock)', () => {
-  let initializableMock: InitializableMock;
+  let initializable: InitializableMock;
   let account: SignerWithAddress;
 
   before(async () => {
     [, account] = await getSigners();
 
-    const InitializableMockFactory = await getContractFactory(
-      'InitializableMock',
-    );
-
-    initializableMock = await processDeployment(
-      InitializableMockFactory.deploy(),
-    );
+    initializable = await deployContract('InitializableMock');
   });
 
   describe('initialize()', () => {
     it('expect to revert when msg.sender is not a deployer', async () => {
-      await expect(
-        initializableMock.connect(account).initialize(),
-      ).revertedWith('MsgSenderIsNotTheDeployer()');
+      await expect(initializable.connect(account).initialize()).revertedWith(
+        'MsgSenderIsNotTheDeployer()',
+      );
     });
 
     it('expect to initialize the contract', async () => {
-      const { tx } = await processTransaction(initializableMock.initialize());
+      expect(await initializable.initialized()).to.eq(false);
 
-      expect(tx).to.emit(initializableMock, 'Initialized');
+      const { tx } = await processTransaction(initializable.initialize());
+
+      await expect(tx).to.emit(initializable, 'Initialized');
+
+      expect(await initializable.initialized()).to.eq(true);
+    });
+
+    it('expect to revert when contract is initialized', async () => {
+      await expect(initializable.connect(account).initialize()).revertedWith(
+        'AlreadyInitialized()',
+      );
     });
   });
 });

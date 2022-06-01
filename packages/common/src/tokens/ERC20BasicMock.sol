@@ -7,7 +7,7 @@ import "./ERC20Basic.sol";
 contract ERC20BasicMock is ERC20Basic {
   // constructor
 
-  constructor(uint256 totalSupply_) ERC20Basic("ERC20 Basic Mock", "EBM") {
+  constructor(uint256 totalSupply_) ERC20Basic("", "") {
     _mint(msg.sender, totalSupply_);
   }
 

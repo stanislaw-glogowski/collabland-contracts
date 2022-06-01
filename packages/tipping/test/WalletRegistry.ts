@@ -4,14 +4,13 @@ import { expect } from 'chai';
 import { WalletRegistry, Wallet__factory as WalletFactory } from '../typechain';
 
 const {
-  getContractFactory,
   constants: { AddressZero },
   utils: { getCreate2Address, keccak256, concat },
 } = ethers;
 
 const {
   getSigners,
-  processDeployment,
+  deployContract,
   processTransaction,
   resetSnapshots,
   revertSnapshot,
@@ -30,9 +29,7 @@ describe('WalletRegistry', () => {
   before(async () => {
     [deployer, gateway, account] = await getSigners();
 
-    const WalletRegistryFactory = await getContractFactory('WalletRegistry');
-
-    walletRegistry = await processDeployment(WalletRegistryFactory.deploy());
+    walletRegistry = await deployContract('WalletRegistry');
 
     walletAddress = getCreate2Address(
       walletRegistry.address,

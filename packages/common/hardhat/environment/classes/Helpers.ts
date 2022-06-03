@@ -1,6 +1,12 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { ContractTransaction, ContractReceipt, Contract, Signer } from 'ethers';
+import {
+  ContractTransaction,
+  ContractReceipt,
+  Contract,
+  Signer,
+  BigNumberish,
+} from 'ethers';
 import kleur from 'kleur';
 import {
   bindObjectMethods,
@@ -81,14 +87,12 @@ export class Helpers {
 
     const {
       deployments: { get },
-      optimism: {
-        contracts: { l1, l2 },
-      },
+      optimism: { layer },
       ethers: { getContractFactory },
     } = this.hre;
 
-    if (l1 || l2) {
-      const name = `${namePrefix}L${l1 ? 1 : 2}`;
+    if (layer) {
+      const name = `${namePrefix}L${layer}`;
 
       try {
         const Factory = await getContractFactory(name);
@@ -261,6 +265,7 @@ export class Helpers {
         name,
         config: { chainId },
       },
+      optimism: { layer },
     } = this.hre;
 
     if (clear) {
@@ -268,6 +273,7 @@ export class Helpers {
     }
 
     console.log('Network ', kleur.green(`${name} #${chainId}`));
+    console.log('        ', kleur.cyan(`Layer ${layer}`));
     console.log();
   }
 
@@ -285,9 +291,31 @@ export class Helpers {
     );
   }
 
+  logAny(message: string, value: any): void {
+    const { BigNumber } = this.hre.ethers;
+
+    let text: string;
+
+    switch (typeof value) {
+      case 'object':
+        text = BigNumber.from(value).toString();
+        break;
+
+      case 'boolean':
+        text = value ? 'true' : 'false';
+        break;
+
+      default:
+        text = `${value}`;
+    }
+
+    console.log(`${kleur.blue('→')} ${message}: ${kleur.green(text)}`);
+  }
+
   logExit(): void {
     console.clear();
     console.log();
     console.log(kleur.italic('bye, bye ...'));
+    console.log();
   }
 }

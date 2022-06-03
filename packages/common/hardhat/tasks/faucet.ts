@@ -4,19 +4,14 @@ import { task, types } from 'hardhat/config';
 
 const TASK_NAME = 'faucet';
 
-const HARDHAT_MNEMONIC =
-  'test test test test test test test test test test test junk';
-
-const HARDHAT_PATH_PREFIX = `m/44'/60'/0'/0/`;
-
 task(TASK_NAME, 'Faucet from hardhat account')
   .addOptionalParam('index', 'Hardhat account index', 0, types.int)
   .addOptionalParam('to', 'Recipient address', undefined, types.string)
-  .addOptionalParam('value', 'Faucet value', '1', types.string)
+  .addOptionalParam('value', 'Faucet value', '0.5', types.string)
   .addOptionalParam(
     'minBalance',
     'Minimal recipient balance',
-    '0.1',
+    '0.5',
     types.string,
   )
   .setAction(
@@ -25,8 +20,8 @@ task(TASK_NAME, 'Faucet from hardhat account')
       hre,
     ) => {
       const {
-        helpers: { getAccounts },
-        ethers: { utils, Wallet, provider, BigNumber },
+        helpers: { getAccounts, createSigner },
+        ethers: { utils, provider, BigNumber },
       } = hre;
 
       let to: string;
@@ -67,10 +62,7 @@ task(TASK_NAME, 'Faucet from hardhat account')
         return;
       }
 
-      const wallet = Wallet.fromMnemonic(
-        HARDHAT_MNEMONIC,
-        `${HARDHAT_PATH_PREFIX}${args.index || 0}`,
-      ).connect(provider);
+      const signer = createSigner(null, args.index || 0);
 
       console.log(
         `Sending ${kleur.green(
@@ -80,7 +72,7 @@ task(TASK_NAME, 'Faucet from hardhat account')
         )} account to ${kleur.yellow(to)}...`,
       );
 
-      const { hash, wait } = await wallet.sendTransaction({
+      const { hash, wait } = await signer.sendTransaction({
         to,
         value,
       });

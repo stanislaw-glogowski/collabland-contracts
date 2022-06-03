@@ -1,4 +1,4 @@
-import { NetworkNames, Optimism, OptimismContracts } from './shared';
+import { NetworkNames, OptimismConfig, OptimismContracts } from './shared';
 
 export const OPTIMISM_L2_CONTRACTS: OptimismContracts = {
   crossDomainMessenger: '0x4200000000000000000000000000000000000007',
@@ -9,17 +9,15 @@ export const SUPPORTED_NETWORKS: Record<
   {
     chainId: number;
     url: string;
-    optimism: Optimism;
+    optimism: OptimismConfig;
   }
 > = {
   [NetworkNames.Local]: {
     chainId: 31337,
     url: 'http://localhost:9545',
     optimism: {
-      contracts: {
-        l1: {
-          crossDomainMessenger: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
-        },
+      l1: {
+        crossDomainMessenger: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
       },
     },
   },
@@ -27,19 +25,15 @@ export const SUPPORTED_NETWORKS: Record<
     chainId: 17,
     url: 'http://localhost:8545',
     optimism: {
-      contracts: {
-        l2: OPTIMISM_L2_CONTRACTS,
-      },
+      l2: OPTIMISM_L2_CONTRACTS,
     },
   },
   [NetworkNames.Kovan]: {
     chainId: 42,
     url: 'https://kovan.infura.io/v3',
     optimism: {
-      contracts: {
-        l1: {
-          crossDomainMessenger: '0x4361d0F75A0186C05f971c566dC6bEa5957483fD',
-        },
+      l1: {
+        crossDomainMessenger: '0x4361d0F75A0186C05f971c566dC6bEa5957483fD',
       },
     },
   },
@@ -47,20 +41,15 @@ export const SUPPORTED_NETWORKS: Record<
     chainId: 69,
     url: 'https://kovan-optimistic.etherscan.io',
     optimism: {
-      contracts: {
-        l2: OPTIMISM_L2_CONTRACTS,
-      },
+      l2: OPTIMISM_L2_CONTRACTS,
     },
   },
   [NetworkNames.Gnosis]: {
     chainId: 100,
     url: 'https://rpc.gnosischain.com',
-
     optimism: {
-      contracts: {
-        l1: {
-          crossDomainMessenger: '0x4324fdD26161457f4BCc1ABDA87709d3Be8Fd10E',
-        },
+      l1: {
+        crossDomainMessenger: '0x4324fdD26161457f4BCc1ABDA87709d3Be8Fd10E',
       },
     },
   },
@@ -68,9 +57,7 @@ export const SUPPORTED_NETWORKS: Record<
     chainId: 300,
     url: 'https://optimism.gnosischain.com',
     optimism: {
-      contracts: {
-        l2: OPTIMISM_L2_CONTRACTS,
-      },
+      l2: OPTIMISM_L2_CONTRACTS,
     },
   },
 };

@@ -1,35 +1,38 @@
-import { runScript } from '@abridged/collabland-common-contracts/scripts';
-import { HARDHAT_MNEMONIC } from '@abridged/collabland-common-contracts/hardhat/shared/constants';
-import { BigNumber } from 'ethers';
-import prompts from 'prompts';
+import {
+  runScript,
+  promptSigner,
+  promptAmount,
+  promptAddress,
+  promptOption,
+  promptNumber,
+} from '@abridged/collabland-common-contracts/scripts';
 import { TippingTokenL1, TippingTokenL2 } from '../typechain';
-
-const SIGNERS_MNEMONIC =
-  'grit bar dust alone enlist armor hour year stamp unveil approve shoot';
-
-const DEFAULT_GAS_LIMIT = 200000;
+import {
+  MAIN_OPTIONS_L1,
+  MAIN_OPTIONS_L2,
+  SIGNER_OPTIONS_L1,
+  SIGNER_OPTIONS_L2,
+  SIGNERS_MNEMONIC,
+} from './constants';
 
 runScript(async (hre) => {
   const {
     helpers: {
-      logTransaction,
-      logNetwork,
-      getContract,
-      logContract,
       createSigner,
       createSigners,
-      logExit,
-      randomAddress,
+      getContract,
       getSigners,
+      logAny,
+      logContract,
+      logExit,
+      logNetwork,
+      logTransaction,
     },
-    optimism: {
-      contracts: { l1, l2 },
-    },
-    ethers: { utils },
+    optimism: { layer },
   } = hre;
 
   const [defaultSigner] = await getSigners();
-  const hardhatSigner = createSigner(HARDHAT_MNEMONIC);
+  const hardhatSigner = createSigner();
   const signers = createSigners(SIGNERS_MNEMONIC);
 
   let tokenL1: TippingTokenL1;
@@ -37,245 +40,148 @@ runScript(async (hre) => {
 
   logNetwork();
 
-  if (l1) {
-    tokenL1 = await getContract('TippingTokenL1');
+  switch (layer) {
+    case 1:
+      tokenL1 = await getContract('TippingTokenL1');
+      break;
 
-    logContract(tokenL1);
+    case 2:
+      tokenL2 = await getContract('TippingTokenL2');
+      break;
   }
 
-  if (l2) {
-    tokenL2 = await getContract('TippingTokenL2');
+  const token = tokenL1 || tokenL2;
 
-    logContract(tokenL2);
-  }
-
-  const token = l1 ? tokenL1 : tokenL2;
+  logContract(token);
 
   console.log();
 
-  const { signer }: { signer: typeof signers[0] } = await prompts({
-    type: 'select',
-    name: 'signer',
-    message: 'Select a signer',
-    choices: [
-      {
-        title: '(x)',
-        selected: true,
-        value: null,
-      },
-      ...signers.map((signer, index) => {
-        const { address } = signer;
-
-        return {
-          title: `(${index + 1}) ${address}`,
-          value: signer,
-        };
-      }),
-    ],
-  });
-
-  if (!signer) {
-    return logExit();
-  }
+  let signer: typeof signers[0] = null;
+  let option: string = null;
 
   for (;;) {
-    console.log();
+    try {
+      console.log();
 
-    const {
-      option,
-    }: { option: 'mint' | 'faucet' | 'transfer' | 'crossDomainTransfer' } =
-      await prompts({
-        type: 'select',
-        name: 'option',
-        message: 'Select an option',
-        choices: [
-          {
-            title: '(x)',
-            selected: true,
-            value: null,
-          },
-          {
-            title: '(1) faucet',
-            value: 'faucet',
-          },
-          {
-            title: '(2) mint tokens',
-            value: 'mint',
-          },
-          {
-            title: '(3) transfer tokens',
-            value: 'transfer',
-          },
-          {
-            title: '(4) cross domain transfer tokens',
-            value: 'crossDomainTransfer',
-          },
-        ],
-      });
+      switch (option) {
+        case 'mintETH': {
+          const to = signer ? signer.address : await promptAddress('Recipient');
 
-    console.log();
+          if (to) {
+            const value = await promptAmount();
 
-    switch (option) {
-      case 'faucet': {
-        const { amount }: { amount: string } = await prompts({
-          type: 'text',
-          name: 'amount',
-          message: 'What amount do you want to mint?',
-        });
+            if (value) {
+              const { hash, wait } = await hardhatSigner.sendTransaction({
+                to,
+                value: value,
+                gasLimit: 25000,
+              });
 
-        let value: BigNumber;
+              await wait();
 
-        try {
-          value = utils.parseEther(amount);
-        } catch (err) {
-          //
+              logTransaction(hash);
+            }
+          }
+
+          option = signer ? 'signerOptions' : null;
+          break;
         }
 
-        if (!value) {
-          return logExit();
+        case 'mintTokens': {
+          const to = signer ? signer.address : await promptAddress('Recipient');
+
+          if (to) {
+            const value = await promptAmount();
+
+            if (value) {
+              const { hash, wait } = await token
+                .connect(defaultSigner)
+                .transfer(to, value);
+
+              await wait();
+
+              logTransaction(hash);
+            }
+          }
+
+          option = signer ? 'signerOptions' : null;
+          break;
         }
 
-        const { hash, wait } = await hardhatSigner.sendTransaction({
-          to: signer.address,
-          value: value,
-        });
+        case 'printBalances': {
+          if (!signer) {
+            console.log();
+          }
 
-        await wait();
+          const account = signer
+            ? signer.address
+            : await promptAddress('Account');
 
-        logTransaction(hash);
-        break;
+          if (account) {
+            const eth = await token.provider.getBalance(account);
+            const tokens = await token.balanceOf(account);
+
+            logAny('ETH balance', eth);
+            logAny('Tokens balance', tokens);
+          }
+
+          option = signer ? 'signerOptions' : null;
+          break;
+        }
+
+        case 'useSigner':
+          signer = await promptSigner(signers);
+
+          option = signer ? 'signerOptions' : null;
+          break;
+
+        case 'signerOptions':
+          option = await promptOption(
+            layer === 1 ? SIGNER_OPTIONS_L1 : SIGNER_OPTIONS_L2,
+          );
+
+          if (!option) {
+            signer = null;
+          }
+          break;
+
+        case 'crossDomainTransfer': {
+          const to = await promptAddress('Recipient', signer.address);
+
+          if (to) {
+            const value = await promptAmount();
+
+            if (value) {
+              const gasLimit = await promptNumber('Gas limit', 300000);
+
+              const { hash, wait } = await token
+                .connect(signer)
+                .crossDomainTransfer(to, value, gasLimit);
+
+              await wait();
+
+              logTransaction(hash);
+            }
+          }
+
+          option = 'signerOptions';
+          break;
+        }
+
+        default: {
+          option = await promptOption(
+            layer === 1 ? MAIN_OPTIONS_L1 : MAIN_OPTIONS_L2,
+          );
+
+          if (!option) {
+            return logExit();
+          }
+        }
       }
-
-      case 'mint': {
-        const { amount }: { amount: string } = await prompts({
-          type: 'text',
-          name: 'amount',
-          message: 'What amount do you want to mint?',
-        });
-
-        let value: BigNumber;
-
-        try {
-          value = utils.parseEther(amount);
-        } catch (err) {
-          //
-        }
-
-        if (!value) {
-          return logExit();
-        }
-
-        const { hash, wait } = await token
-          .connect(defaultSigner)
-          .transfer(signer.address, value);
-
-        await wait();
-
-        logTransaction(hash);
-        break;
-      }
-
-      case 'transfer': {
-        let to: string;
-        let value: BigNumber;
-
-        const { amount }: { amount: string } = await prompts({
-          type: 'text',
-          name: 'amount',
-          message: 'What amount do you want to transfer?',
-        });
-
-        try {
-          value = utils.parseEther(amount);
-        } catch (err) {
-          //
-        }
-
-        if (!value) {
-          return logExit();
-        }
-
-        const { recipient }: { recipient: string } = await prompts({
-          type: 'text',
-          name: 'recipient',
-          message: 'What is the recipient address?',
-          initial: randomAddress(),
-        });
-
-        try {
-          to = utils.getAddress(recipient);
-        } catch (err) {
-          //
-        }
-
-        if (!to) {
-          return logExit();
-        }
-
-        const { hash, wait } = await token.connect(signer).transfer(to, value);
-
-        await wait();
-
-        logTransaction(hash);
-        break;
-      }
-
-      case 'crossDomainTransfer': {
-        let to: string;
-        let value: BigNumber;
-
-        const { amount }: { amount: string } = await prompts({
-          type: 'text',
-          name: 'amount',
-          message: 'What amount do you want to transfer?',
-        });
-
-        try {
-          value = utils.parseEther(amount);
-        } catch (err) {
-          //
-        }
-
-        if (!value) {
-          return logExit();
-        }
-
-        const { recipient }: { recipient: string } = await prompts({
-          type: 'text',
-          name: 'recipient',
-          message: 'What is the recipient address?',
-          initial: signer.address,
-        });
-
-        try {
-          to = utils.getAddress(recipient);
-        } catch (err) {
-          //
-        }
-
-        if (!to) {
-          to = signer.address;
-        }
-
-        const { gasLimit }: { gasLimit: number } = await prompts({
-          type: 'number',
-          name: 'gasLimit',
-          message: 'With what gas limit?',
-          initial: DEFAULT_GAS_LIMIT,
-        });
-
-        const { hash, wait } = await token
-          .connect(signer)
-          .crossDomainTransfer(to, amount, gasLimit);
-
-        await wait();
-
-        logTransaction(hash);
-        break;
-      }
-
-      default:
-        return logExit();
+    } catch (err) {
+      console.clear();
+      console.error(err);
+      console.log();
     }
   }
 });

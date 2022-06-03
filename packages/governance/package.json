@@ -19,8 +19,8 @@
     "test": "hardhat test",
     "demo:local": "hardhat run scripts/demo.ts --network local",
     "demo:local-optimism": "hardhat run scripts/demo.ts --network local-optimism",
-    "watch-events:local": "hardhat watch-events --contract GovernanceToken --network local",
-    "watch-events:local-optimism": "hardhat watch-events --contract GovernanceToken --network local-optimism"
+    "watch-events:local": "hardhat watch-events --network local",
+    "watch-events:local-optimism": "hardhat watch-events --network local-optimism"
   },
   "dependencies": {
     "@abridged/collabland-common-contracts": "0.0.1"

@@ -28,21 +28,16 @@ $ npm i @abridged/collabland-tipping-contracts -S
 ```bash
 $ cd ./packages/tipping
 
-$ npm run compile                                       # compiles all contracts
-$ npm run coverage                                      # runs coverage tests
-$ npm run test                                          # runs unit tests
-$ npm run deploy:<network alias>                        # deploys contracts to <network alias>
+$ npm run compile                       # compiles all contracts
+$ npm run coverage                      # runs coverage tests
+$ npm run test                          # runs unit tests
+$ npm run deploy:<network alias>        # deploys contracts to <network alias>
 
-$ npm run demo:<network alias>                          # starts interactive demo on <network-alias>
-                                                        # (local network type only)
+$ npm run watch-events:<network alias>  # watches for events on <network alias> 
+                                        # (local network type only)
                                         
-$ npm run watch-events:<contract name>:<network alias>  # watches for events on <network alias> 
-                                                        # <contract name>[L1,L2] contract
-                                                        # (local network type only)
-                                                        #
-                                                        # Supported contracts:
-                                                        # * TippingToken
-                                                        # * GnosisSafeRegistry
+$ npm run demo:<network alias>          # starts interactive demo on <network alias> 
+                                        # (local network type only)
 ```
 
 ## License

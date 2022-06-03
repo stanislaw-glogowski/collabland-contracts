@@ -1,15 +1,15 @@
 import 'hardhat/types/config';
 import 'hardhat/types/runtime';
 import type { Helpers } from './environment';
-import type { Envs, Optimism } from './shared';
+import type { Envs, Optimism, OptimismConfig } from './shared';
 
 declare module 'hardhat/types/config' {
   export interface HardhatNetworkConfig {
-    optimism?: Optimism;
+    optimism?: OptimismConfig;
   }
 
   export interface HttpNetworkConfig {
-    optimism?: Optimism;
+    optimism?: OptimismConfig;
   }
 }
 

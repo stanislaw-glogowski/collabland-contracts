@@ -6,7 +6,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployments: { execute, read, log },
     helpers: { getAccounts },
     optimism: {
-      contracts: { l1, l2 },
+      layer,
+      contracts: { crossDomainMessenger },
     },
   } = hre;
 
@@ -14,38 +15,38 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   log();
 
-  // layer 1
-  if (l1) {
-    if (await read('ExampleL1', 'initialized')) {
-      log('ExampleL1 already initialized');
-    } else {
-      await execute(
-        'ExampleL1',
-        {
-          from,
-          log: true,
-        },
-        'initialize',
-        l1.crossDomainMessenger,
-      );
-    }
-  }
+  switch (layer) {
+    case 1:
+      if (await read('ExampleL1', 'initialized')) {
+        log('ExampleL1 already initialized');
+      } else {
+        await execute(
+          'ExampleL1',
+          {
+            from,
+            log: true,
+          },
+          'initialize',
+          crossDomainMessenger,
+        );
+      }
+      break;
 
-  // layer 2
-  if (l2) {
-    if (await read('ExampleL2', 'initialized')) {
-      log('ExampleL2 already initialized');
-    } else {
-      await execute(
-        'ExampleL2',
-        {
-          from,
-          log: true,
-        },
-        'initialize',
-        l2.crossDomainMessenger,
-      );
-    }
+    case 2:
+      if (await read('ExampleL2', 'initialized')) {
+        log('ExampleL2 already initialized');
+      } else {
+        await execute(
+          'ExampleL2',
+          {
+            from,
+            log: true,
+          },
+          'initialize',
+          crossDomainMessenger,
+        );
+      }
+      break;
   }
 };
 

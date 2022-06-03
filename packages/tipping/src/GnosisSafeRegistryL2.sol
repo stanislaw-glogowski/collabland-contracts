@@ -170,16 +170,16 @@ contract GnosisSafeRegistryL2 is
       if (!_isGateway(owner)) {
         uint256 index = _wallets[wallet].ownerIndex[owner];
 
-        if (index != (_wallets[wallet].owners.length - 1)) {}
+        if (index != (_wallets[wallet].owners.length - 1)) {
+          uint256 ownerIndex = _wallets[wallet].ownerIndex[owner];
+          uint256 lastOwnerIndex = _wallets[wallet].owners.length - 1;
 
-        uint256 ownerIndex = _wallets[wallet].ownerIndex[owner];
-        uint256 lastOwnerIndex = _wallets[wallet].owners.length - 1;
+          if (ownerIndex != lastOwnerIndex) {
+            address lastOwner = _wallets[wallet].owners[lastOwnerIndex];
 
-        if (ownerIndex != lastOwnerIndex) {
-          address lastOwner = _wallets[wallet].owners[lastOwnerIndex];
-
-          _wallets[wallet].ownerIndex[lastOwner] = ownerIndex;
-          _wallets[wallet].owners[ownerIndex] = lastOwner;
+            _wallets[wallet].ownerIndex[lastOwner] = ownerIndex;
+            _wallets[wallet].owners[ownerIndex] = lastOwner;
+          }
         }
 
         _wallets[wallet].owners.pop();

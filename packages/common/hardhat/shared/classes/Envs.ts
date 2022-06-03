@@ -2,6 +2,8 @@ import { URL } from 'url';
 import { utils } from 'ethers';
 import { bindObjectMethods } from '../utils';
 
+const { DEBUG_ENVS } = process.env;
+
 export class Envs {
   static processEnvs = new Envs({
     ...process.env,
@@ -128,6 +130,12 @@ export class Envs {
 
   getEnvValue(key: string): string {
     key = this.buildEnvKey(key);
+
+    const result = this.data[key];
+
+    if (DEBUG_ENVS) {
+      console.log(`${key}=${result || ''}`);
+    }
 
     return this.data[key];
   }

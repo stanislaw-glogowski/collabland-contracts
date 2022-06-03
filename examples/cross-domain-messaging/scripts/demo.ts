@@ -1,8 +1,9 @@
-import { runScript } from '@abridged/collabland-common-contracts/scripts';
-import prompts from 'prompts';
+import {
+  runScript,
+  promptText,
+  promptNumber,
+} from '@abridged/collabland-common-contracts/scripts';
 import { Example } from '../typechain';
-
-const DEFAULT_GAS_LIMIT = 200000;
 
 runScript(async (hre) => {
   const {
@@ -18,28 +19,15 @@ runScript(async (hre) => {
   for (;;) {
     console.log();
 
-    const { message }: { message: string } = await prompts({
-      type: 'text',
-      name: 'message',
-      message: 'What message do you want to send?',
-      initial: '',
-    });
+    const message = await promptText('Message');
 
     if (!message) {
       return logExit();
     }
 
-    const { gasLimit }: { gasLimit: number } = await prompts({
-      type: 'number',
-      name: 'gasLimit',
-      message: 'With what gas limit?',
-      initial: DEFAULT_GAS_LIMIT,
-    });
+    const gasLimit = await promptNumber('Gas limit', 200000);
 
-    const { hash, wait } = await example.sendMessage(
-      message,
-      gasLimit || DEFAULT_GAS_LIMIT,
-    );
+    const { hash, wait } = await example.sendMessage(message, gasLimit);
 
     await wait();
 

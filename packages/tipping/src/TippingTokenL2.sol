@@ -46,6 +46,7 @@ contract TippingTokenL2 is Controlled, GatewayContext, TippingToken {
   function _msgSender()
     internal
     view
+    virtual
     override(GatewayContext, Context)
     returns (address)
   {

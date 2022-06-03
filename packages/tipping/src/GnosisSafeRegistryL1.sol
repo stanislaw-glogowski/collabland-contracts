@@ -62,6 +62,8 @@ contract GnosisSafeRegistryL1 is GnosisSafeRegistry {
       payable(address(0)) // paymentReceiver
     );
 
+    _deployedWallets[address(wallet)] = true;
+
     emit WalletDeployed(address(wallet), salt, owners);
   }
 }

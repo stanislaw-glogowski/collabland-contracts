@@ -34,3 +34,11 @@ export const SIGNER_OPTIONS_L1 = {
 export const SIGNER_OPTIONS_L2 = {
   ...SIGNER_OPTIONS_COMMON,
 };
+
+export const WALLET_OPTIONS_L1 = {
+  walletState: 'Wallet state',
+};
+
+export const WALLET_OPTIONS_L2 = {
+  deployWallet: 'Deploy wallet',
+};

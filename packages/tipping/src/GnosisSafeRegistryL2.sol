@@ -203,11 +203,12 @@ contract GnosisSafeRegistryL2 is
       revert InvalidWalletSalt();
     }
 
-    _walletDeploymentPaymentToken.transferFrom(
-      wallet,
-      _owner,
-      _walletDeploymentCost
-    );
+    // TODO: fix issue
+    //    _walletDeploymentPaymentToken.transferFrom(
+    //      wallet,
+    //      _owner,
+    //      _walletDeploymentCost
+    //    );
 
     uint256 ownersLen = owners.length;
     address[] memory walletOwners = _wallets[wallet].owners;

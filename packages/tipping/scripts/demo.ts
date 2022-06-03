@@ -5,14 +5,23 @@ import {
   promptAddress,
   promptOption,
   promptNumber,
+  promptText,
 } from '@abridged/collabland-common-contracts/scripts';
-import { TippingTokenL1, TippingTokenL2 } from '../typechain';
+import {
+  TippingTokenL1,
+  TippingTokenL2,
+  Gateway,
+  GnosisSafeRegistryL1,
+  GnosisSafeRegistryL2,
+} from '../typechain';
 import {
   MAIN_OPTIONS_L1,
   MAIN_OPTIONS_L2,
   SIGNER_OPTIONS_L1,
   SIGNER_OPTIONS_L2,
   SIGNERS_MNEMONIC,
+  WALLET_OPTIONS_L1,
+  WALLET_OPTIONS_L2,
 } from './constants';
 
 runScript(async (hre) => {
@@ -29,28 +38,39 @@ runScript(async (hre) => {
       logTransaction,
     },
     optimism: { layer },
+    ethers: {
+      utils,
+      constants: { MaxUint256 },
+    },
   } = hre;
 
   const [defaultSigner] = await getSigners();
   const hardhatSigner = createSigner();
   const signers = createSigners(SIGNERS_MNEMONIC);
 
+  let gateway: Gateway;
   let tokenL1: TippingTokenL1;
   let tokenL2: TippingTokenL2;
+  let walletRegistryL1: GnosisSafeRegistryL1;
+  let walletRegistryL2: GnosisSafeRegistryL2;
 
   logNetwork();
 
   switch (layer) {
     case 1:
       tokenL1 = await getContract('TippingTokenL1');
+      walletRegistryL1 = await getContract('GnosisSafeRegistryL1');
       break;
 
     case 2:
+      gateway = await getContract('Gateway');
       tokenL2 = await getContract('TippingTokenL2');
+      walletRegistryL2 = await getContract('GnosisSafeRegistryL2');
       break;
   }
 
   const token = tokenL1 || tokenL2;
+  const walletRegistry = walletRegistryL1 || walletRegistryL2;
 
   logContract(token);
 
@@ -58,6 +78,10 @@ runScript(async (hre) => {
 
   let signer: typeof signers[0] = null;
   let option: string = null;
+  let wallet: {
+    salt: string;
+    address: string;
+  } = null;
 
   for (;;) {
     try {
@@ -165,6 +189,97 @@ runScript(async (hre) => {
           }
 
           option = 'signerOptions';
+          break;
+        }
+
+        case 'useWallet': {
+          const saltPayload = await promptText('Salt payload');
+
+          if (saltPayload) {
+            const salt = utils.id(saltPayload);
+            const address = await walletRegistry.computeWalletAddress(salt);
+
+            wallet = {
+              salt,
+              address,
+            };
+
+            console.log();
+
+            logAny('Wallet salt', salt);
+            logAny('Wallet address', address);
+          }
+
+          option = wallet ? 'walletOptions' : null;
+
+          break;
+        }
+
+        case 'walletOptions':
+          option = await promptOption(
+            layer === 1 ? WALLET_OPTIONS_L1 : WALLET_OPTIONS_L2,
+          );
+
+          if (!option) {
+            wallet = null;
+          }
+
+          break;
+
+        case 'walletState': {
+          const state = await walletRegistryL1.isWalletDeployed(wallet.address);
+
+          logAny('Is wallet deployed', state);
+
+          option = 'walletOptions';
+          break;
+        }
+
+        case 'deployWallet': {
+          {
+            console.log('Transferring required tokens to the wallet ...');
+
+            const { hash, wait } = await token
+              .connect(defaultSigner)
+              .transfer(wallet.address, utils.parseEther('100'));
+
+            await wait();
+
+            logTransaction(hash);
+          }
+
+          {
+            console.log();
+            console.log('Approving tokens and deploying wallet ...');
+
+            const to = [
+              tokenL2.address, //
+              walletRegistryL2.address,
+            ];
+
+            const data: string[] = [
+              tokenL2.interface.encodeFunctionData('approve', [
+                walletRegistryL2.address,
+                MaxUint256,
+              ]),
+              walletRegistryL2.interface.encodeFunctionData(
+                'requestWalletDeployment',
+                [wallet.salt, [], 1500000],
+              ),
+            ];
+
+            const { hash, wait } = await gateway
+              .connect(defaultSigner)
+              .forwardWalletCalls(wallet.salt, to, data, {
+                gasLimit: 500000,
+              });
+
+            await wait();
+
+            logTransaction(hash);
+          }
+
+          option = 'walletOptions';
           break;
         }
 

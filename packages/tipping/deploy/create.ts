@@ -25,6 +25,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         from,
         log: true,
       });
+
+      log();
+
+      await deploy('GnosisSafe', {
+        from,
+        log: true,
+      });
       break;
 
     case 2:

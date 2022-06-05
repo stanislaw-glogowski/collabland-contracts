@@ -6,7 +6,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployments: { execute, read, log, get },
     helpers: { getAccounts },
     processNetworkEnvs: {
-      getEnvAsNumber,
       getEnvAsAddress,
       getEnvAsAddressArray,
       getEnvAsAmount,
@@ -48,10 +47,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       if (await read('GnosisSafeRegistryL1', 'initialized')) {
         log('GnosisSafeRegistryL1 already initialized');
       } else {
-        const DEFAULT_WALLET_THRESHOLD = getEnvAsNumber(
-          'GnosisSafeRegistry.DEFAULT_WALLET_THRESHOLD',
-          1,
-        );
+        const { address: walletMasterCopy } = await get('GnosisSafe');
 
         await execute(
           'GnosisSafeRegistryL1',
@@ -61,7 +57,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           },
           'initialize',
           crossDomainMessenger,
-          DEFAULT_WALLET_THRESHOLD,
+          walletMasterCopy,
         );
       }
       break;
@@ -74,9 +70,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       if (await read('TippingTokenL2', 'initialized')) {
         log('TippingTokenL2 already initialized');
       } else {
+        const { address: gnosisSafeRegistry } = await get(
+          'GnosisSafeRegistryL2',
+        );
+
         const CONTROLLERS = getEnvAsAddressArray(
           'TippingToken.CONTROLLERS', //
           [from],
+        );
+        const OPERATORS = getEnvAsAddressArray(
+          'TippingToken.OPERATORS', //
+          [gnosisSafeRegistry],
         );
 
         await execute(
@@ -87,6 +91,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           },
           'initialize',
           CONTROLLERS,
+          OPERATORS,
           gateway,
           crossDomainMessenger,
           INITIAL_SUPPLY,
@@ -116,6 +121,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           'initialize',
           crossDomainMessenger,
           gateway,
+          gateway, // same nonce like L1 GnosisSafe
           WALLET_DEPLOYMENT_PAYMENT_TOKEN,
           WALLET_DEPLOYMENT_COST,
         );

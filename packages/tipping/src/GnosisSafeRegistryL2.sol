@@ -40,12 +40,14 @@ contract GnosisSafeRegistryL2 is
   error InvalidWalletSalt();
   error InvalidWalletDeploymentPaymentToken();
   error InvalidWalletDeploymentCost();
+  error NotEnoughWalletOwners();
 
   // events
 
   event Initialized(
     address crossDomainMessenger,
     address gateway,
+    address walletMasterCopy,
     address walletDeploymentPaymentToken,
     uint256 walletDeploymentCost
   );
@@ -72,6 +74,7 @@ contract GnosisSafeRegistryL2 is
   function initialize(
     address crossDomainMessenger,
     address gateway,
+    address walletMasterCopy,
     address walletDeploymentPaymentToken,
     uint256 walletDeploymentCost
   ) external initializer {
@@ -79,13 +82,7 @@ contract GnosisSafeRegistryL2 is
 
     _setGateway(gateway);
 
-    if (walletDeploymentPaymentToken == address(0)) {
-      revert InvalidWalletDeploymentPaymentToken();
-    }
-
-    if (walletDeploymentCost == 0) {
-      revert InvalidWalletDeploymentCost();
-    }
+    _setWalletMasterCopy(walletMasterCopy);
 
     _walletDeploymentPaymentToken = IERC20(walletDeploymentPaymentToken);
     _walletDeploymentCost = walletDeploymentCost;
@@ -93,6 +90,7 @@ contract GnosisSafeRegistryL2 is
     emit Initialized(
       crossDomainMessenger,
       gateway,
+      walletMasterCopy,
       walletDeploymentPaymentToken,
       walletDeploymentCost
     );
@@ -203,12 +201,16 @@ contract GnosisSafeRegistryL2 is
       revert InvalidWalletSalt();
     }
 
-    // TODO: fix issue
-    //    _walletDeploymentPaymentToken.transferFrom(
-    //      wallet,
-    //      _owner,
-    //      _walletDeploymentCost
-    //    );
+    if (
+      address(_walletDeploymentPaymentToken) != address(0) &&
+      _walletDeploymentCost != 0
+    ) {
+      _walletDeploymentPaymentToken.transferFrom(
+        wallet,
+        _owner,
+        _walletDeploymentCost
+      );
+    }
 
     uint256 ownersLen = owners.length;
     address[] memory walletOwners = _wallets[wallet].owners;
@@ -228,6 +230,10 @@ contract GnosisSafeRegistryL2 is
       }
     }
 
+    if (ownersLen == 0 && walletOwners.length == 0) {
+      revert NotEnoughWalletOwners();
+    }
+
     _sendCrossDomainMessage(
       abi.encodeWithSelector(
         GnosisSafeRegistryL1.deployWalletHandler.selector,
@@ -236,5 +242,7 @@ contract GnosisSafeRegistryL2 is
       ),
       gasLimit
     );
+
+    emit WalletDeploymentRequested(wallet, salt, owners, gasLimit);
   }
 }

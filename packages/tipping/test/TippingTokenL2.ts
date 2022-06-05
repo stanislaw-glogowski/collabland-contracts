@@ -21,9 +21,10 @@ describe('TippingTokenL2', () => {
 
   let tippingToken: TippingTokenL2;
   let controller: SignerWithAddress;
+  let gateway: SignerWithAddress;
 
   before(async () => {
-    [, controller] = await getSigners();
+    [, controller, gateway] = await getSigners();
 
     tippingToken = await deployContract('TippingTokenL2');
   });
@@ -45,7 +46,8 @@ describe('TippingTokenL2', () => {
         await processTransaction(
           tippingToken.initialize(
             [controller.address],
-            AddressZero,
+            [],
+            gateway.address,
             AddressZero,
             totalSupply,
           ),
@@ -71,6 +73,7 @@ describe('TippingTokenL2', () => {
       const { tx } = await processTransaction(
         tippingToken.initialize(
           controllers,
+          [],
           gateway,
           crossDomainMessenger,
           totalSupply,
@@ -86,7 +89,7 @@ describe('TippingTokenL2', () => {
       expect(await tippingToken.initialized()).to.eq(true);
 
       await expect(
-        tippingToken.initialize([], AddressZero, AddressZero, totalSupply),
+        tippingToken.initialize([], [], AddressZero, AddressZero, totalSupply),
       ).revertedWith('AlreadyInitialized()');
     });
   });

@@ -2,17 +2,23 @@
 
 pragma solidity ^0.8.0;
 
-import "@gnosis.pm/safe-contracts/contracts/GnosisSafeL2.sol";
 import "@abridged/collabland-common-contracts/src/optimism/CrossDomainSelfBridged.sol";
 import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
+import "@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxy.sol";
 
 abstract contract GnosisSafeRegistry is CrossDomainSelfBridged, Initializable {
   bytes32 private _walletCreationCodeHash;
 
+  address internal _walletMasterCopy;
+
+  // errors
+
+  error WalletMasterCopyIsTheZeroAddress();
+
   // constructor
 
   constructor() Initializable() {
-    _walletCreationCodeHash = keccak256(type(GnosisSafeL2).creationCode);
+    //
   }
 
   // external functions (views)
@@ -42,5 +48,22 @@ abstract contract GnosisSafeRegistry is CrossDomainSelfBridged, Initializable {
     );
 
     return address(uint160(uint256(data)));
+  }
+
+  // internal functions
+
+  function _setWalletMasterCopy(address walletMasterCopy) internal {
+    if (walletMasterCopy == address(0)) {
+      revert WalletMasterCopyIsTheZeroAddress();
+    }
+
+    _walletMasterCopy = walletMasterCopy;
+
+    _walletCreationCodeHash = keccak256(
+      abi.encodePacked(
+        type(GnosisSafeProxy).creationCode,
+        uint256(uint160(_walletMasterCopy))
+      )
+    );
   }
 }

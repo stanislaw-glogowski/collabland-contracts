@@ -38,10 +38,7 @@ runScript(async (hre) => {
       logTransaction,
     },
     optimism: { layer },
-    ethers: {
-      utils,
-      constants: { MaxUint256 },
-    },
+    ethers: { utils },
   } = hre;
 
   const [defaultSigner] = await getSigners();
@@ -250,29 +247,21 @@ runScript(async (hre) => {
 
           {
             console.log();
-            console.log('Approving tokens and deploying wallet ...');
-
-            const to = [
-              tokenL2.address, //
-              walletRegistryL2.address,
-            ];
-
-            const data: string[] = [
-              tokenL2.interface.encodeFunctionData('approve', [
-                walletRegistryL2.address,
-                MaxUint256,
-              ]),
-              walletRegistryL2.interface.encodeFunctionData(
-                'requestWalletDeployment',
-                [wallet.salt, [], 1500000],
-              ),
-            ];
+            console.log('Deploying wallet ...');
 
             const { hash, wait } = await gateway
               .connect(defaultSigner)
-              .forwardWalletCalls(wallet.salt, to, data, {
-                gasLimit: 500000,
-              });
+              .forwardWalletCall(
+                wallet.salt,
+                walletRegistryL2.address,
+                walletRegistryL2.interface.encodeFunctionData(
+                  'requestWalletDeployment',
+                  [wallet.salt, [walletRegistryL2.address], 500000],
+                ),
+                {
+                  gasLimit: 300000,
+                },
+              );
 
             await wait();
 

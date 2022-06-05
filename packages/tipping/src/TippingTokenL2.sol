@@ -26,13 +26,16 @@ contract TippingTokenL2 is Controlled, GatewayContext, TippingToken {
 
   function initialize(
     address[] calldata controllers,
+    address[] calldata operators,
     address gateway,
     address crossDomainMessenger,
     uint256 totalSupply_
   ) external initializer {
     _setControllers(controllers);
 
-    _setGateway(crossDomainMessenger);
+    _setOperators(operators);
+
+    _setGateway(gateway);
 
     _setCrossDomainMessenger(crossDomainMessenger);
 

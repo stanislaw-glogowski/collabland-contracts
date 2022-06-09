@@ -331,5 +331,23 @@ describe('ERC20 (using mock)', () => {
         expect(await erc20.totalSupply()).to.eq(totalSupply - data.amount);
       });
     });
+
+    describe('_setOperators()', () => {
+      before(async () => {
+        await revertSnapshot();
+      });
+
+      it('expect to set empty list of operators', async () => {
+        await processTransaction(erc20.setOperators([]));
+      });
+
+      it('expect to set list of operators', async () => {
+        const exited = randomAddress();
+
+        await processTransaction(
+          erc20.setOperators([randomAddress(), exited, AddressZero]),
+        );
+      });
+    });
   });
 });

@@ -23,6 +23,10 @@ contract ERC20Mock is ERC20 {
     _burn(from, amount);
   }
 
+  function setOperators(address[] calldata operators) external {
+    _setOperators(operators);
+  }
+
   // internal functions (views)
 
   function _balanceOf(address account)

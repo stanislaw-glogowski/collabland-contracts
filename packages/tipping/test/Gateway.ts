@@ -5,7 +5,7 @@ import {
   Gateway,
   GatewayContextMock,
   WalletRegistry,
-  GnosisSafeL2__factory as GnosisSafeL2Factory,
+  GnosisSafe__factory as GnosisSafeFactory,
 } from '../typechain';
 
 const {
@@ -47,7 +47,7 @@ describe('Gateway', () => {
     walletAddress = getCreate2Address(
       walletRegistry.address,
       walletSalt,
-      keccak256(GnosisSafeL2Factory.bytecode),
+      keccak256(GnosisSafeFactory.bytecode),
     );
   });
 

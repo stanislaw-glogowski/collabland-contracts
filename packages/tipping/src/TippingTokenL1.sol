@@ -2,17 +2,16 @@
 
 pragma solidity ^0.8.0;
 
-import "@abridged/collabland-common-contracts/src/access/Ownable.sol";
 import "./TippingToken.sol";
 
-contract TippingTokenL1 is Ownable, TippingToken {
+contract TippingTokenL1 is TippingToken {
   // events
 
   event Initialized(address crossDomainMessenger);
 
   // constructor
 
-  constructor() Ownable() TippingToken() {
+  constructor() TippingToken() {
     //
   }
 

@@ -2,19 +2,25 @@
 
 pragma solidity ^0.8.0;
 
+import "@abridged/collabland-common-contracts/src/access/Ownable.sol";
 import "@abridged/collabland-common-contracts/src/tokens/ERC20.sol";
 import "@abridged/collabland-common-contracts/src/tokens/ERC20Basic.sol";
 import "@abridged/collabland-common-contracts/src/tokens/ERC20CrossDomainSelfBridged.sol";
 import "@abridged/collabland-common-contracts/src/utils/Initializable.sol";
 
 abstract contract TippingToken is
+  Ownable,
   ERC20Basic,
   ERC20CrossDomainSelfBridged,
   Initializable
 {
   // constructor
 
-  constructor() ERC20Basic("Universal Tipping", "UTIP") Initializable() {
+  constructor()
+    Ownable()
+    ERC20Basic("Universal Tipping", "UTIP")
+    Initializable()
+  {
     //
   }
 

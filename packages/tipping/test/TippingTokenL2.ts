@@ -20,11 +20,10 @@ describe('TippingTokenL2', () => {
   const totalSupply = 1000000;
 
   let tippingToken: TippingTokenL2;
-  let controller: SignerWithAddress;
   let gateway: SignerWithAddress;
 
   before(async () => {
-    [, controller, gateway] = await getSigners();
+    [, gateway] = await getSigners();
 
     tippingToken = await deployContract('TippingTokenL2');
   });
@@ -45,7 +44,6 @@ describe('TippingTokenL2', () => {
       if (options.initialize) {
         await processTransaction(
           tippingToken.initialize(
-            [controller.address],
             [],
             gateway.address,
             AddressZero,
@@ -66,30 +64,29 @@ describe('TippingTokenL2', () => {
     });
 
     it('expect to initialize the contract', async () => {
-      const controllers = [randomAddress()];
+      const operators = [randomAddress()];
       const gateway = randomAddress();
       const crossDomainMessenger = randomAddress();
 
       const { tx } = await processTransaction(
         tippingToken.initialize(
-          controllers,
-          [],
+          operators,
           gateway,
           crossDomainMessenger,
           totalSupply,
         ),
       );
 
-      expect(tx)
+      await expect(tx)
         .to.emit(tippingToken, 'Initialized')
-        .withArgs(controllers, gateway, crossDomainMessenger);
+        .withArgs(operators, gateway, crossDomainMessenger);
     });
 
     it('expect to revert when contract is already initialized', async () => {
       expect(await tippingToken.initialized()).to.eq(true);
 
       await expect(
-        tippingToken.initialize([], [], AddressZero, AddressZero, totalSupply),
+        tippingToken.initialize([], AddressZero, AddressZero, totalSupply),
       ).revertedWith('AlreadyInitialized()');
     });
   });

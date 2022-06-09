@@ -73,7 +73,7 @@ describe('GovernanceTokenL1', () => {
         governanceToken.initialize(crossDomainMessenger.address, totalSupply),
       );
 
-      expect(tx)
+      await expect(tx)
         .to.emit(governanceToken, 'Initialized')
         .withArgs(crossDomainMessenger.address);
     });
@@ -166,7 +166,7 @@ describe('GovernanceTokenL1', () => {
           governanceToken.transfer(to, value),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(governanceToken, 'Transfer')
           .withArgs(deployer.address, to, value);
       });
@@ -186,7 +186,7 @@ describe('GovernanceTokenL1', () => {
 
         const { tx } = await processTransaction(governanceToken.burn(value));
 
-        expect(tx)
+        await expect(tx)
           .to.emit(governanceToken, 'Transfer')
           .withArgs(deployer.address, AddressZero, value);
       });

@@ -74,10 +74,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           'GnosisSafeRegistryL2',
         );
 
-        const CONTROLLERS = getEnvAsAddressArray(
-          'TippingToken.CONTROLLERS', //
-          [from],
-        );
         const OPERATORS = getEnvAsAddressArray(
           'TippingToken.OPERATORS', //
           [gnosisSafeRegistry],
@@ -90,7 +86,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             log: true,
           },
           'initialize',
-          CONTROLLERS,
           OPERATORS,
           gateway,
           crossDomainMessenger,

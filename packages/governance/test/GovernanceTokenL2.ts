@@ -2,7 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { ethers, helpers } from 'hardhat';
 import { expect } from 'chai';
 import { GovernanceTokenL2, CrossDomainMessengerMock } from '../typechain';
-import { ProposalStatuses, VoteTypes } from './constants';
+import { VoteTypes } from './constants';
 
 const {
   constants: { AddressZero },
@@ -101,7 +101,9 @@ describe('GovernanceTokenL2', () => {
         ),
       );
 
-      expect(tx).to.emit(governanceToken, 'Initialized').withArgs(controllers);
+      await expect(tx)
+        .to.emit(governanceToken, 'Initialized')
+        .withArgs(controllers, 1, crossDomainMessenger.address, 1);
     });
 
     it('expect to revert when contract is already initialized', async () => {
@@ -219,7 +221,7 @@ describe('GovernanceTokenL2', () => {
 
         const { tx } = await processTransaction(governanceToken.burn(value));
 
-        expect(tx)
+        await expect(tx)
           .to.emit(governanceToken, 'Transfer')
           .withArgs(deployer.address, AddressZero, value);
       });
@@ -233,18 +235,47 @@ describe('GovernanceTokenL2', () => {
         callValue: [10],
         callData: [randomHex32()],
         votingStartsIn: 100,
+        timestamp: 0,
       };
 
       createBeforeHook();
 
       before(async () => {
-        const timestamp = await increaseNextBlockTimestamp(
+        data.timestamp = await increaseNextBlockTimestamp(
           snapshotWindowLength + 1,
         ); // next snapshot
 
         data.snapshotId = (
-          await governanceToken.computeSnapshotId(timestamp)
+          await governanceToken.computeSnapshotId(data.timestamp)
         ).toNumber();
+      });
+
+      it('expect to create new proposal', async () => {
+        const votingStartsAt = data.timestamp + data.votingStartsIn;
+        const votingEndsAt = votingStartsAt + votingPeriod;
+
+        const { tx } = await processTransaction(
+          governanceToken
+            .connect(controller)
+            .createProposal(
+              data.callTo,
+              data.callValue,
+              data.callData,
+              data.votingStartsIn,
+            ),
+        );
+
+        await expect(tx)
+          .to.emit(governanceToken, 'ProposalCreated')
+          .withArgs(
+            data.proposalId,
+            data.snapshotId - 1,
+            data.callTo,
+            data.callValue,
+            data.callData,
+            votingStartsAt,
+            votingEndsAt,
+          );
       });
 
       it('expect to revert when msg sender is not the controller', async () => {
@@ -267,35 +298,6 @@ describe('GovernanceTokenL2', () => {
         ).revertedWith('CallToIsTheZeroAddress()');
       });
 
-      it('expect to create new proposal', async () => {
-        const timestamp = await increaseNextBlockTimestamp();
-        const votingStartsAt = timestamp + data.votingStartsIn;
-        const votingEndsAt = votingStartsAt + votingPeriod;
-
-        const { tx } = await processTransaction(
-          governanceToken
-            .connect(controller)
-            .createProposal(
-              data.callTo,
-              data.callValue,
-              data.callData,
-              data.votingStartsIn,
-            ),
-        );
-
-        expect(tx)
-          .to.emit(governanceToken, 'ProposalCreated')
-          .withArgs(
-            data.proposalId,
-            data.snapshotId,
-            data.callTo,
-            data.callValue,
-            data.callData,
-            votingStartsAt,
-            votingEndsAt,
-          );
-      });
-
       it('expect to create next proposal', async () => {
         const { tx } = await processTransaction(
           governanceToken
@@ -303,9 +305,7 @@ describe('GovernanceTokenL2', () => {
             .createProposal([randomAddress()], [0], [[]], 0),
         );
 
-        expect(tx)
-          .to.emit(governanceToken, 'ProposalCreated')
-          .withArgs(data.proposalId + 1);
+        await expect(tx).to.emit(governanceToken, 'ProposalCreated');
       });
     });
 
@@ -422,13 +422,9 @@ describe('GovernanceTokenL2', () => {
             .processProposal(data.proposalIds.readyToProcess, gasLimit),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(governanceToken, 'ProposalProcessed')
-          .withArgs(
-            data.proposalIds.readyToProcess,
-            ProposalStatuses.Processed,
-            gasLimit,
-          );
+          .withArgs(data.proposalIds.readyToProcess);
       });
 
       it('expect to process with reverted status', async () => {
@@ -438,13 +434,9 @@ describe('GovernanceTokenL2', () => {
             .processProposal(data.proposalIds.readyToReject, gasLimit),
         );
 
-        expect(tx)
-          .to.emit(governanceToken, 'ProposalProcessed')
-          .withArgs(
-            data.proposalIds.readyToReject,
-            ProposalStatuses.Rejected,
-            gasLimit,
-          );
+        await expect(tx)
+          .to.emit(governanceToken, 'ProposalRejected')
+          .withArgs(data.proposalIds.readyToReject);
       });
 
       it('expect to process with rejected status', async () => {
@@ -454,9 +446,9 @@ describe('GovernanceTokenL2', () => {
             .processProposal(data.proposalIds.rejected, gasLimit),
         );
 
-        expect(tx)
-          .to.emit(governanceToken, 'ProposalProcessed')
-          .withArgs(data.proposalIds.rejected, ProposalStatuses.Rejected);
+        await expect(tx)
+          .to.emit(governanceToken, 'ProposalRejected')
+          .withArgs(data.proposalIds.rejected);
       });
     });
 
@@ -572,7 +564,7 @@ describe('GovernanceTokenL2', () => {
             .submitVote(data.proposalIds.ready, VoteTypes.No),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(governanceToken, 'VoteSubmitted')
           .withArgs(
             data.proposalIds.ready,

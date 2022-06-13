@@ -20,10 +20,12 @@ describe('TippingTokenL2', () => {
   const totalSupply = 1000000;
 
   let tippingToken: TippingTokenL2;
+  let deployer: SignerWithAddress;
+  let account: SignerWithAddress;
   let gateway: SignerWithAddress;
 
   before(async () => {
-    [, gateway] = await getSigners();
+    [deployer, account, gateway] = await getSigners();
 
     tippingToken = await deployContract('TippingTokenL2');
   });
@@ -114,6 +116,45 @@ describe('TippingTokenL2', () => {
     describe('totalSupply()', () => {
       it('expect to return correct total supply', async () => {
         expect(await tippingToken.totalSupply()).to.eq(totalSupply);
+      });
+    });
+  });
+
+  describe('# external functions', () => {
+    describe('transfer()', () => {
+      createBeforeHook();
+
+      it('expect to transfer tokens', async () => {
+        const to = randomAddress();
+        const value = 1000;
+
+        const { tx } = await processTransaction(
+          tippingToken.transfer(to, value),
+        );
+
+        await expect(tx)
+          .to.emit(tippingToken, 'Transfer')
+          .withArgs(deployer.address, to, value);
+      });
+    });
+
+    describe('burn()', () => {
+      createBeforeHook();
+
+      it('expect to revert when msg sender is not the owner', async () => {
+        await expect(tippingToken.connect(account).burn(100)).revertedWith(
+          'MsgSenderIsNotTheOwner()',
+        );
+      });
+
+      it('expect to burn tokens', async () => {
+        const value = 1000;
+
+        const { tx } = await processTransaction(tippingToken.burn(value));
+
+        await expect(tx)
+          .to.emit(tippingToken, 'Transfer')
+          .withArgs(deployer.address, AddressZero, value);
       });
     });
   });

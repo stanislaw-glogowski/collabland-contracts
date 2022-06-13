@@ -256,7 +256,7 @@ runScript(async (hre) => {
                 walletRegistryL2.address,
                 walletRegistryL2.interface.encodeFunctionData(
                   'requestWalletDeployment',
-                  [wallet.salt, [walletRegistryL2.address], 500000],
+                  [wallet.salt, utils.parseEther('100'), 500000],
                 ),
                 {
                   gasLimit: 300000,

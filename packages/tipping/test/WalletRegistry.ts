@@ -73,7 +73,7 @@ describe('WalletRegistry', () => {
         walletRegistry.initialize(gateway),
       );
 
-      expect(tx).to.emit(walletRegistry, 'Initialized').withArgs(gateway);
+      await expect(tx).to.emit(walletRegistry, 'Initialized').withArgs(gateway);
     });
 
     it('expect to revert when contract is already initialized', async () => {
@@ -215,7 +215,7 @@ describe('WalletRegistry', () => {
           walletRegistry.addWalletOwner(owner),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(walletRegistry, 'WalletOwnerAdded')
           .withArgs(deployer.address, owner);
       });
@@ -232,7 +232,7 @@ describe('WalletRegistry', () => {
             walletRegistry.addWalletOwner(gateway.address),
           );
 
-          expect(tx)
+          await expect(tx)
             .to.emit(walletRegistry, 'WalletOwnerAdded')
             .withArgs(deployer.address, gateway.address);
         });
@@ -287,7 +287,7 @@ describe('WalletRegistry', () => {
           walletRegistry.removeWalletOwner(gateway.address),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(walletRegistry, 'WalletOwnerRemoved')
           .withArgs(deployer.address, gateway.address);
       });
@@ -297,7 +297,7 @@ describe('WalletRegistry', () => {
           walletRegistry.removeWalletOwner(account.address),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(walletRegistry, 'WalletOwnerRemoved')
           .withArgs(deployer.address, account.address);
       });
@@ -320,7 +320,7 @@ describe('WalletRegistry', () => {
             walletRegistry.removeWalletOwner(gateway.address),
           );
 
-          expect(tx)
+          await expect(tx)
             .to.emit(walletRegistry, 'WalletOwnerRemoved')
             .withArgs(deployer.address, gateway.address);
         });

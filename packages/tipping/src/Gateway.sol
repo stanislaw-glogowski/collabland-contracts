@@ -18,7 +18,7 @@ contract Gateway is Controlled, Initializable {
 
   // events
 
-  event Initialized(address[] controllers);
+  event Initialized(address walletRegistr, address[] controllers);
 
   event WalletCallForwarded(
     address wallet,
@@ -48,7 +48,7 @@ contract Gateway is Controlled, Initializable {
 
     _setControllers(controllers);
 
-    emit Initialized(controllers);
+    emit Initialized(walletRegistry, controllers);
   }
 
   // external functions

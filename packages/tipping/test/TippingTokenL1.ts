@@ -1,3 +1,4 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { ethers, helpers } from 'hardhat';
 import { expect } from 'chai';
 import { TippingTokenL1 } from '../typechain';
@@ -12,14 +13,19 @@ const {
   resetSnapshots,
   revertSnapshot,
   randomAddress,
+  getSigners,
 } = helpers;
 
 describe('TippingTokenL1', () => {
   const totalSupply = 1000000;
 
   let tippingToken: TippingTokenL1;
+  let deployer: SignerWithAddress;
+  let account: SignerWithAddress;
 
   before(async () => {
+    [deployer, account] = await getSigners();
+
     tippingToken = await deployContract('TippingTokenL1');
   });
 
@@ -60,7 +66,7 @@ describe('TippingTokenL1', () => {
         tippingToken.initialize(crossDomainMessenger, totalSupply),
       );
 
-      expect(tx)
+      await expect(tx)
         .to.emit(tippingToken, 'Initialized')
         .withArgs(crossDomainMessenger);
     });
@@ -97,6 +103,45 @@ describe('TippingTokenL1', () => {
     describe('totalSupply()', () => {
       it('expect to return correct total supply', async () => {
         expect(await tippingToken.totalSupply()).to.eq(totalSupply);
+      });
+    });
+  });
+
+  describe('# external functions', () => {
+    describe('transfer()', () => {
+      createBeforeHook();
+
+      it('expect to transfer tokens', async () => {
+        const to = randomAddress();
+        const value = 1000;
+
+        const { tx } = await processTransaction(
+          tippingToken.transfer(to, value),
+        );
+
+        await expect(tx)
+          .to.emit(tippingToken, 'Transfer')
+          .withArgs(deployer.address, to, value);
+      });
+    });
+
+    describe('burn()', () => {
+      createBeforeHook();
+
+      it('expect to revert when msg sender is not the owner', async () => {
+        await expect(tippingToken.connect(account).burn(100)).revertedWith(
+          'MsgSenderIsNotTheOwner()',
+        );
+      });
+
+      it('expect to burn tokens', async () => {
+        const value = 1000;
+
+        const { tx } = await processTransaction(tippingToken.burn(value));
+
+        await expect(tx)
+          .to.emit(tippingToken, 'Transfer')
+          .withArgs(deployer.address, AddressZero, value);
       });
     });
   });

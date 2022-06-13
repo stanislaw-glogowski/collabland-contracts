@@ -13,7 +13,6 @@ const {
   deployContract,
   processTransaction,
   randomAddress,
-  randomHex32,
   resetSnapshots,
   revertSnapshot,
 } = helpers;
@@ -194,10 +193,10 @@ describe('GovernanceTokenL1', () => {
 
     describe('processProposalHandler()', () => {
       const data = {
-        proposalId: 1,
+        proposalId: 8,
         callTo: [randomAddress()],
-        callValue: [10],
-        callData: [randomHex32()],
+        callValue: [0],
+        callData: [[]],
       };
 
       createBeforeHook();
@@ -219,12 +218,12 @@ describe('GovernanceTokenL1', () => {
             governanceToken.address,
             governanceToken.interface.encodeFunctionData(
               'processProposalHandler',
-              [8, data.callTo, data.callValue, data.callData],
+              [data.proposalId, data.callTo, data.callValue, data.callData],
             ),
           ),
         );
 
-        expect(tx)
+        await expect(tx)
           .to.emit(governanceToken, 'ProposalProcessed')
           .withArgs(data.proposalId, [ResponseStatuses.Success]);
       });

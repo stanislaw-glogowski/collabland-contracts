@@ -24,7 +24,7 @@ contract GnosisSafeRegistryL2 is
   struct Wallet {
     address[] owners;
     mapping(address => OwnerStates) ownerStates;
-    mapping(address => uint256) ownerIndex;
+    mapping(address => uint256) ownerIndexes;
   }
 
   IERC20 private _walletDeploymentPaymentToken;
@@ -38,8 +38,8 @@ contract GnosisSafeRegistryL2 is
   error WalletOwnerDoesntExist();
   error WalletOwnerIsTheZeroAddress();
   error InvalidWalletSalt();
-  error InvalidWalletDeploymentPaymentToken();
-  error InvalidWalletDeploymentCost();
+  error InvalidWalletDeploymentCostLimit();
+  error WalletDeploymentPaymentTokenIsTheZeroAddress();
   error NotEnoughWalletOwners();
 
   // events
@@ -55,6 +55,8 @@ contract GnosisSafeRegistryL2 is
   event WalletOwnerAdded(address wallet, address owner);
 
   event WalletOwnerRemoved(address wallet, address owner);
+
+  event WalletDeploymentCostUpdated(uint256 walletDeploymentCost);
 
   event WalletDeploymentRequested(
     address wallet,
@@ -78,6 +80,10 @@ contract GnosisSafeRegistryL2 is
     address walletDeploymentPaymentToken,
     uint256 walletDeploymentCost
   ) external initializer {
+    if (walletDeploymentPaymentToken == address(0)) {
+      revert WalletDeploymentPaymentTokenIsTheZeroAddress();
+    }
+
     _setCrossDomainMessenger(crossDomainMessenger);
 
     _setGateway(gateway);
@@ -120,6 +126,15 @@ contract GnosisSafeRegistryL2 is
 
   // external functions
 
+  function setWalletDeploymentCost(uint256 walletDeploymentCost)
+    external
+    onlyOwner
+  {
+    _walletDeploymentCost = walletDeploymentCost;
+
+    emit WalletDeploymentCostUpdated(walletDeploymentCost);
+  }
+
   function addWalletOwner(address owner) external {
     address wallet = _msgSender();
 
@@ -138,7 +153,7 @@ contract GnosisSafeRegistryL2 is
         revert WalletOwnerAlreadyExists();
       }
 
-      _wallets[wallet].ownerIndex[owner] = _wallets[wallet].owners.length;
+      _wallets[wallet].ownerIndexes[owner] = _wallets[wallet].owners.length;
       _wallets[wallet].owners.push(owner);
     }
 
@@ -155,36 +170,38 @@ contract GnosisSafeRegistryL2 is
     }
 
     OwnerStates ownerState = _wallets[wallet].ownerStates[owner];
+    uint256 ownersLen = _wallets[wallet].owners.length;
 
-    if (ownerState == OwnerStates.Unknown) {
-      if (_isGateway(owner)) {
-        if (_wallets[wallet].owners.length == 0) {
-          revert OwnerlessWallet();
-        }
-      } else {
+    if (_isGateway(owner)) {
+      if (ownerState == OwnerStates.Removed) {
         revert WalletOwnerDoesntExist();
       }
-    } else if (ownerState == OwnerStates.Added) {
-      if (!_isGateway(owner)) {
-        uint256 index = _wallets[wallet].ownerIndex[owner];
 
-        if (index != (_wallets[wallet].owners.length - 1)) {
-          uint256 ownerIndex = _wallets[wallet].ownerIndex[owner];
-          uint256 lastOwnerIndex = _wallets[wallet].owners.length - 1;
-
-          if (ownerIndex != lastOwnerIndex) {
-            address lastOwner = _wallets[wallet].owners[lastOwnerIndex];
-
-            _wallets[wallet].ownerIndex[lastOwner] = ownerIndex;
-            _wallets[wallet].owners[ownerIndex] = lastOwner;
-          }
-        }
-
-        _wallets[wallet].owners.pop();
+      if (ownersLen == 0) {
+        revert OwnerlessWallet();
       }
+    } else if (ownerState == OwnerStates.Added) {
+      if (ownersLen == 1) {
+        revert OwnerlessWallet();
+      }
+
+      uint256 index = _wallets[wallet].ownerIndexes[owner];
+      uint256 lastIndex = ownersLen - 1;
+
+      if (index != lastIndex) {
+        address lastOwner = _wallets[wallet].owners[lastIndex];
+
+        _wallets[wallet].owners[index] = lastOwner;
+        _wallets[wallet].ownerIndexes[lastOwner] = index;
+      }
+
+      delete _wallets[wallet].ownerIndexes[owner];
+
+      _wallets[wallet].owners.pop();
     } else {
       revert WalletOwnerDoesntExist();
     }
+
     _wallets[wallet].ownerStates[owner] = OwnerStates.Removed;
 
     emit WalletOwnerRemoved(wallet, owner);
@@ -192,7 +209,7 @@ contract GnosisSafeRegistryL2 is
 
   function requestWalletDeployment(
     bytes32 salt,
-    address[] calldata owners,
+    uint256 costLimit,
     uint32 gasLimit
   ) external {
     address wallet = _msgSender();
@@ -205,6 +222,10 @@ contract GnosisSafeRegistryL2 is
       address(_walletDeploymentPaymentToken) != address(0) &&
       _walletDeploymentCost != 0
     ) {
+      if (costLimit < _walletDeploymentCost) {
+        revert InvalidWalletDeploymentCostLimit();
+      }
+
       _walletDeploymentPaymentToken.transferFrom(
         wallet,
         _owner,
@@ -212,25 +233,9 @@ contract GnosisSafeRegistryL2 is
       );
     }
 
-    uint256 ownersLen = owners.length;
     address[] memory walletOwners = _wallets[wallet].owners;
-    uint256 walletOwnersLen = walletOwners.length;
 
-    if (ownersLen == 0 && walletOwnersLen == 0) {
-      revert OwnerlessWallet();
-    }
-
-    for (uint256 i; i < ownersLen; ) {
-      if (owners[i] == address(0)) {
-        revert WalletOwnerIsTheZeroAddress();
-      }
-
-      unchecked {
-        ++i;
-      }
-    }
-
-    if (ownersLen == 0 && walletOwners.length == 0) {
+    if (walletOwners.length == 0) {
       revert NotEnoughWalletOwners();
     }
 
@@ -238,11 +243,11 @@ contract GnosisSafeRegistryL2 is
       abi.encodeWithSelector(
         GnosisSafeRegistryL1.deployWalletHandler.selector,
         salt,
-        ownersLen == 0 ? walletOwners : owners
+        walletOwners
       ),
       gasLimit
     );
 
-    emit WalletDeploymentRequested(wallet, salt, owners, gasLimit);
+    emit WalletDeploymentRequested(wallet, salt, walletOwners, gasLimit);
   }
 }

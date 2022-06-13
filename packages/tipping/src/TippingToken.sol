@@ -24,6 +24,14 @@ abstract contract TippingToken is
     //
   }
 
+  // external functions
+
+  function burn(uint256 amount) external onlyOwner {
+    _burn(msg.sender, amount);
+  }
+
+  // internal functions
+
   function _mintHandler(address to, uint256 amount)
     internal
     override(ERC20Basic, ERC20)

@@ -5,7 +5,7 @@ import {
   Gateway,
   GatewayContextMock,
   WalletRegistry,
-  GnosisSafe__factory as GnosisSafeFactory,
+  Wallet__factory as WalletFactory,
 } from '../typechain';
 
 const {
@@ -47,7 +47,7 @@ describe('Gateway', () => {
     walletAddress = getCreate2Address(
       walletRegistry.address,
       walletSalt,
-      keccak256(GnosisSafeFactory.bytecode),
+      keccak256(WalletFactory.bytecode),
     );
   });
 
@@ -94,7 +94,7 @@ describe('Gateway', () => {
         gateway.initialize(walletRegistry.address, [controller.address]),
       );
 
-      expect(tx)
+      await expect(tx)
         .to.emit(gateway, 'Initialized')
         .withArgs(walletRegistry.address, [controller.address]);
     });
@@ -183,7 +183,9 @@ describe('Gateway', () => {
             ),
         );
 
-        expect(tx).to.emit(walletRegistry, 'MsgSender').withArgs(walletAddress);
+        await expect(tx)
+          .to.emit(gatewayContext, 'MsgSender')
+          .withArgs(walletAddress);
       });
 
       it('expect to forward wallet call by the account', async () => {
@@ -197,7 +199,9 @@ describe('Gateway', () => {
             ),
         );
 
-        expect(tx).to.emit(walletRegistry, 'MsgSender').withArgs(walletAddress);
+        await expect(tx)
+          .to.emit(gatewayContext, 'MsgSender')
+          .withArgs(walletAddress);
       });
     });
   });

@@ -29,6 +29,7 @@ runScript(async (hre) => {
       logExit,
       logNetwork,
       logTransaction,
+      randomAddress,
     },
     optimism: { layer },
   } = hre;
@@ -173,6 +174,27 @@ runScript(async (hre) => {
             signer = null;
           }
           break;
+
+        case 'transfer': {
+          const to = await promptAddress('Recipient', randomAddress());
+
+          if (to) {
+            const value = await promptAmount();
+
+            if (value) {
+              const { hash, wait } = await token
+                .connect(signer)
+                .transfer(to, value);
+
+              await wait();
+
+              logTransaction(hash);
+            }
+          }
+
+          option = 'signerOptions';
+          break;
+        }
 
         case 'crossDomainTransfer': {
           const to = await promptAddress('Recipient', signer.address);

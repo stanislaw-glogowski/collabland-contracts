@@ -191,6 +191,27 @@ runScript(async (hre) => {
           }
           break;
 
+        case 'transfer': {
+          const to = await promptAddress('Recipient', randomAddress());
+
+          if (to) {
+            const value = await promptAmount();
+
+            if (value) {
+              const { hash, wait } = await token
+                .connect(signer)
+                .transfer(to, value);
+
+              await wait();
+
+              logTransaction(hash);
+            }
+          }
+
+          option = 'signerOptions';
+          break;
+        }
+
         case 'crossDomainTransfer': {
           const to = await promptAddress('Recipient', signer.address);
 

@@ -66,7 +66,7 @@ task(TASK_NAME, 'Watch for contract events').setAction(async (args, hre) => {
 
     const events = await Promise.all(
       logs
-        // .filter((log) => log.blockNumber >= fromBlock) // fixes hardhat / ethers.js issue
+        .filter((log) => log.blockNumber >= fromBlock) // fixes hardhat / ethers.js issue
         .map(async (log) => {
           const { transactionHash } = log;
           const event = contract.interface.parseLog(log);

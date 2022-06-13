@@ -64,11 +64,44 @@ task(TASK_NAME, 'Watch for contract events').setAction(async (args, hre) => {
       toBlock: 'latest',
     });
 
-    const events = logs
-      .filter((log) => log.blockNumber >= fromBlock) // fixes hardhat / ethers.js issue
-      .map((log) => contract.interface.parseLog(log));
+    const events = await Promise.all(
+      logs
+        // .filter((log) => log.blockNumber >= fromBlock) // fixes hardhat / ethers.js issue
+        .map(async (log) => {
+          const { transactionHash } = log;
+          const event = contract.interface.parseLog(log);
 
-    for (const { name, args } of events) {
+          const { gasUsed } = await provider.getTransactionReceipt(
+            transactionHash,
+          );
+
+          return {
+            ...event,
+            transactionHash,
+            gasUsed: gasUsed.toNumber(),
+          };
+        }),
+    );
+
+    const transactionHashes: Record<string, boolean> = {};
+
+    for (const { name, args, transactionHash, gasUsed } of events) {
+      if (!transactionHashes[transactionHash]) {
+        console.log();
+        console.log(
+          `${kleur.blue('→')} ${kleur.green(transactionHash)} tx`,
+          JSON.stringify(
+            {
+              gasUsed,
+            },
+            jsonReplacer,
+            2,
+          ),
+        );
+
+        transactionHashes[transactionHash] = true;
+      }
+
       const data = Object.entries(args).reduce((result, [key, value]) => {
         return isNaN(parseInt(key))
           ? {
@@ -80,7 +113,7 @@ task(TASK_NAME, 'Watch for contract events').setAction(async (args, hre) => {
 
       console.log();
       console.log(
-        `${kleur.blue('→')} ${kleur.cyan(name)} emitted`,
+        `${kleur.blue('→')} ${kleur.cyan(name)} event`,
         JSON.stringify(data, jsonReplacer, 2),
       );
     }

@@ -40,5 +40,6 @@ export const WALLET_OPTIONS_L1 = {
 };
 
 export const WALLET_OPTIONS_L2 = {
+  ...OPTIONS_COMMON,
   deployWallet: 'Deploy wallet',
 };

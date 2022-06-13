@@ -36,6 +36,7 @@ runScript(async (hre) => {
       logExit,
       logNetwork,
       logTransaction,
+      randomAddress,
     },
     optimism: { layer },
     ethers: { utils },
@@ -80,13 +81,37 @@ runScript(async (hre) => {
     address: string;
   } = null;
 
+  const getTargetAddress = () => {
+    let result: string = null;
+
+    if (wallet && wallet.address) {
+      result = wallet.address;
+    } else if (signer) {
+      result = signer.address;
+    }
+
+    return result;
+  };
+
+  const getTargetPreviousOption = () => {
+    let result: string = null;
+
+    if (wallet && wallet.address) {
+      result = 'walletOptions';
+    } else if (signer) {
+      result = 'signerOptions';
+    }
+
+    return result;
+  };
+
   for (;;) {
     try {
       console.log();
 
       switch (option) {
         case 'mintETH': {
-          const to = signer ? signer.address : await promptAddress('Recipient');
+          const to = getTargetAddress() || (await promptAddress('Recipient'));
 
           if (to) {
             const value = await promptAmount();
@@ -104,12 +129,12 @@ runScript(async (hre) => {
             }
           }
 
-          option = signer ? 'signerOptions' : null;
+          option = getTargetPreviousOption();
           break;
         }
 
         case 'mintTokens': {
-          const to = signer ? signer.address : await promptAddress('Recipient');
+          const to = getTargetAddress() || (await promptAddress('Recipient'));
 
           if (to) {
             const value = await promptAmount();
@@ -125,28 +150,28 @@ runScript(async (hre) => {
             }
           }
 
-          option = signer ? 'signerOptions' : null;
+          option = getTargetPreviousOption();
           break;
         }
 
         case 'printBalances': {
-          if (!signer) {
+          option = getTargetPreviousOption();
+
+          if (!option) {
             console.log();
           }
 
-          const account = signer
-            ? signer.address
-            : await promptAddress('Account');
+          const account =
+            getTargetAddress() || (await promptAddress('Account'));
 
           if (account) {
             const eth = await token.provider.getBalance(account);
             const tokens = await token.balanceOf(account);
 
+            logAny('Address', account);
             logAny('ETH balance', eth);
             logAny('Tokens balance', tokens);
           }
-
-          option = signer ? 'signerOptions' : null;
           break;
         }
 
@@ -239,6 +264,29 @@ runScript(async (hre) => {
             const { hash, wait } = await token
               .connect(defaultSigner)
               .transfer(wallet.address, utils.parseEther('100'));
+
+            await wait();
+
+            logTransaction(hash);
+          }
+
+          {
+            console.log();
+            console.log('Adding random owner to the wallet ...');
+
+            const { hash, wait } = await gateway
+              .connect(defaultSigner)
+              .forwardWalletCall(
+                wallet.salt,
+                walletRegistryL2.address,
+                walletRegistryL2.interface.encodeFunctionData(
+                  'addWalletOwner',
+                  [randomAddress()],
+                ),
+                {
+                  gasLimit: 300000,
+                },
+              );
 
             await wait();
 
